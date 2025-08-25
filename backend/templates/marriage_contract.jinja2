@@ -1,0 +1,157 @@
+
+# MARRIAGE CONTRACT
+
+{% if contract_type == "prenuptial" %}
+## PRE-NUPTIAL AGREEMENT
+{% elif contract_type == "postnuptial" %}
+## POST-NUPTIAL AGREEMENT
+{% else %}
+## MARRIAGE CONTRACT
+{% endif %}
+
+---
+
+## PARTIES
+
+**FIRST PARTY:** {{ party1_name }}  
+ID Number: {{ party1_id }}  
+Address: {{ party1_address }}  
+Occupation: {{ party1_occupation }}
+
+**SECOND PARTY:** {{ party2_name }}  
+ID Number: {{ party2_id }}  
+Address: {{ party2_address }}  
+Occupation: {{ party2_occupation }}
+
+{% if contract_type == "prenuptial" %}
+**Intended Marriage Date:** {{ intended_marriage_date }}
+{% elif contract_type == "postnuptial" %}
+**Marriage Date:** {{ marriage_date }}  
+**Marriage Certificate Number:** {{ marriage_cert_number }}
+{% endif %}
+
+---
+
+## PREAMBLE
+
+WHEREAS the parties intend to enter into marriage and wish to define their respective rights and obligations regarding property and financial matters;
+
+WHEREAS both parties have made full disclosure of their assets and liabilities;
+
+WHEREAS both parties have had the opportunity to seek independent legal advice;
+
+NOW THEREFORE, the parties agree as follows:
+
+---
+
+## SEPARATE PROPERTY
+
+### Property of {{ party1_name }}
+The following shall remain the separate property of {{ party1_name }}:
+
+{% for asset in party1_separate_assets %}
+{{ loop.index }}. {{ asset.description }} (Value: KES {{ asset.value|number_format }})
+{% endfor %}
+
+### Property of {{ party2_name }}
+The following shall remain the separate property of {{ party2_name }}:
+
+{% for asset in party2_separate_assets %}
+{{ loop.index }}. {{ asset.description }} (Value: KES {{ asset.value|number_format }})
+{% endfor %}
+
+---
+
+## MATRIMONIAL PROPERTY
+
+{% if matrimonial_property_regime == "community" %}
+### Community Property Regime
+All property acquired during the marriage (except separate property above) shall be owned jointly in equal shares.
+
+{% elif matrimonial_property_regime == "separate" %}
+### Separate Property Regime
+Each party shall retain ownership of property acquired in their own name during marriage.
+
+{% elif matrimonial_property_regime == "deferred_community" %}
+### Deferred Community Property
+Property acquired during marriage shall be subject to sharing upon dissolution of marriage according to contribution.
+{% endif %}
+
+---
+
+## FINANCIAL OBLIGATIONS
+
+### Living Expenses
+{{ living_expenses_arrangement }}
+
+### Debt Responsibility
+{{ debt_responsibility_arrangement }}
+
+### Children's Expenses
+{{ children_expenses_arrangement }}
+
+---
+
+## SUCCESSION RIGHTS
+
+{% if succession_waiver %}
+### Waiver of Succession Rights
+{{ succession_waiver_details }}
+{% else %}
+### Succession Rights Preserved
+Both parties retain their succession rights under the Law of Succession Act.
+{% endif %}
+
+---
+
+## DISPUTE RESOLUTION
+
+Any disputes arising from this contract shall be resolved through:
+1. Mediation by a qualified mediator
+2. If mediation fails, arbitration under the Arbitration Act
+3. As a last resort, court proceedings in Kenya
+
+---
+
+## MODIFICATION AND TERMINATION
+
+This contract may only be modified by mutual written agreement of both parties. The contract shall terminate upon:
+1. Mutual agreement of the parties
+2. Divorce or annulment of the marriage
+3. Death of either party
+
+---
+
+## LEGAL COMPLIANCE
+
+This contract is made in accordance with:
+{% for reference in legal_references %}
+- {{ reference }}
+{% endfor %}
+
+---
+
+## EXECUTION
+
+IN WITNESS WHEREOF, the parties have executed this agreement on {{ execution_date }}.
+
+**{{ party1_name }}:**  
+Signature: _______________________________  
+Date: _______________________________
+
+**{{ party2_name }}:**  
+Signature: _______________________________  
+Date: _______________________________
+
+**WITNESSES:**  
+Witness 1: _______________________________  
+Witness 2: _______________________________
+
+---
+
+**Document Generated:** {{ generation_date }}  
+**Template Version:** {{ template_version }}  
+**Legal Review Required:** Yes
+
+*This contract requires independent legal advice for both parties.*
+        

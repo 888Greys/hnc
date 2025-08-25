@@ -1,0 +1,195 @@
+
+# COMPREHENSIVE ASSET DECLARATION
+
+**Declaration by:** {{ declarant_name }}  
+**Date:** {{ declaration_date }}  
+**ID/Passport:** {{ declarant_id }}
+
+---
+
+## DECLARATION STATEMENT
+
+I, {{ declarant_name }}, do hereby solemnly declare that the following is a true and complete statement of all my assets and liabilities as of {{ valuation_date }}.
+
+---
+
+## REAL ESTATE ASSETS
+
+{% if real_estate_assets %}
+{% for property in real_estate_assets %}
+### Property {{ loop.index }}
+
+**Type:** {{ property.type }}  
+**Location:** {{ property.location }}  
+**Title/Deed Number:** {{ property.title_number }}  
+**Size:** {{ property.size }}  
+**Current Value:** KES {{ property.value|number_format }}  
+**Acquisition Date:** {{ property.acquisition_date }}  
+**Acquisition Cost:** KES {{ property.acquisition_cost|number_format }}  
+**Outstanding Mortgage:** KES {{ property.mortgage_balance|default(0)|number_format }}
+
+{% endfor %}
+
+**Total Real Estate Value:** KES {{ total_real_estate_value|number_format }}
+{% else %}
+No real estate assets declared.
+{% endif %}
+
+---
+
+## FINANCIAL ASSETS
+
+### Bank Accounts
+{% if bank_accounts %}
+{% for account in bank_accounts %}
+**{{ account.bank_name }}**  
+Account Number: {{ account.account_number }}  
+Account Type: {{ account.account_type }}  
+Current Balance: KES {{ account.balance|number_format }}
+
+{% endfor %}
+**Total Bank Balances:** KES {{ total_bank_balances|number_format }}
+{% else %}
+No bank accounts declared.
+{% endif %}
+
+### Investment Accounts
+{% if investments %}
+{% for investment in investments %}
+**{{ investment.type }}**  
+Institution: {{ investment.institution }}  
+Account/Policy Number: {{ investment.account_number }}  
+Current Value: KES {{ investment.value|number_format }}  
+Maturity Date: {{ investment.maturity_date }}
+
+{% endfor %}
+**Total Investment Value:** KES {{ total_investment_value|number_format }}
+{% else %}
+No investments declared.
+{% endif %}
+
+---
+
+## BUSINESS INTERESTS
+
+{% if business_interests %}
+{% for business in business_interests %}
+### {{ business.business_name }}
+
+**Type:** {{ business.business_type }}  
+**Registration Number:** {{ business.registration_number }}  
+**Ownership Percentage:** {{ business.ownership_percentage }}%  
+**Estimated Value:** KES {{ business.estimated_value|number_format }}  
+**Annual Revenue:** KES {{ business.annual_revenue|number_format }}  
+**Role:** {{ business.role }}
+
+{% endfor %}
+
+**Total Business Value:** KES {{ total_business_value|number_format }}
+{% else %}
+No business interests declared.
+{% endif %}
+
+---
+
+## PERSONAL PROPERTY
+
+{% if personal_property %}
+{% for item in personal_property %}
+**{{ item.category }}**  
+Description: {{ item.description }}  
+Estimated Value: KES {{ item.value|number_format }}  
+Acquisition Date: {{ item.acquisition_date }}
+
+{% endfor %}
+
+**Total Personal Property Value:** KES {{ total_personal_property_value|number_format }}
+{% else %}
+No significant personal property declared.
+{% endif %}
+
+---
+
+## LIABILITIES
+
+### Loans and Mortgages
+{% if loans %}
+{% for loan in loans %}
+**{{ loan.lender }}**  
+Loan Type: {{ loan.type }}  
+Original Amount: KES {{ loan.original_amount|number_format }}  
+Outstanding Balance: KES {{ loan.outstanding_balance|number_format }}  
+Monthly Payment: KES {{ loan.monthly_payment|number_format }}  
+Maturity Date: {{ loan.maturity_date }}
+
+{% endfor %}
+
+**Total Outstanding Loans:** KES {{ total_outstanding_loans|number_format }}
+{% else %}
+No outstanding loans declared.
+{% endif %}
+
+### Other Liabilities
+{% if other_liabilities %}
+{% for liability in other_liabilities %}
+**{{ liability.type }}**  
+Creditor: {{ liability.creditor }}  
+Amount: KES {{ liability.amount|number_format }}  
+Due Date: {{ liability.due_date }}
+
+{% endfor %}
+
+**Total Other Liabilities:** KES {{ total_other_liabilities|number_format }}
+{% else %}
+No other liabilities declared.
+{% endif %}
+
+---
+
+## SUMMARY
+
+### Asset Summary
+- Real Estate: KES {{ total_real_estate_value|number_format }}
+- Financial Assets: KES {{ (total_bank_balances + total_investment_value)|number_format }}
+- Business Interests: KES {{ total_business_value|number_format }}
+- Personal Property: KES {{ total_personal_property_value|number_format }}
+
+**TOTAL ASSETS:** KES {{ total_assets|number_format }}
+
+### Liability Summary
+- Outstanding Loans: KES {{ total_outstanding_loans|number_format }}
+- Other Liabilities: KES {{ total_other_liabilities|number_format }}
+
+**TOTAL LIABILITIES:** KES {{ total_liabilities|number_format }}
+
+### Net Worth
+**NET WORTH:** KES {{ net_worth|number_format }}
+
+---
+
+## DECLARATION
+
+I solemnly declare that:
+
+1. The information provided above is true and complete to the best of my knowledge
+2. I have not deliberately omitted any assets or liabilities
+3. All valuations are based on current market estimates or professional assessments
+4. I understand that false declaration may have legal consequences
+
+**Declarant Signature:** _______________________________  
+{{ declarant_name }}  
+Date: {{ declaration_date }}
+
+**Witness:**  
+Name: _______________________________  
+Signature: _______________________________  
+Date: _______________________________
+
+---
+
+**Document Generated:** {{ generation_date }}  
+**Template Version:** {{ template_version }}  
+**Purpose:** {{ declaration_purpose }}
+
+*This declaration is prepared for {{ declaration_purpose }} and may require professional verification.*
+        

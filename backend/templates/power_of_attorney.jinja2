@@ -1,0 +1,142 @@
+
+# POWER OF ATTORNEY
+
+---
+
+## PRINCIPAL
+
+I, **{{ principal_name }}** of {{ principal_address }}, being of sound mind, do hereby make, constitute and appoint {{ attorney_name }} of {{ attorney_address }} as my true and lawful Attorney-in-Fact.
+
+**Principal ID:** {{ principal_id }}  
+**Date of Birth:** {{ principal_dob }}
+
+---
+
+## ATTORNEY-IN-FACT
+
+**Name:** {{ attorney_name }}  
+**Address:** {{ attorney_address }}  
+**ID Number:** {{ attorney_id }}  
+**Relationship:** {{ attorney_relationship }}
+
+---
+
+## SCOPE OF AUTHORITY
+
+{% if power_type == "general" %}
+I hereby grant to my Attorney-in-Fact full power and authority to act on my behalf in all matters, including but not limited to:
+
+1. **Financial Matters:** Banking, investments, tax matters, and financial transactions
+2. **Property Matters:** Real estate transactions, property management, and rentals
+3. **Legal Matters:** Signing contracts, legal documents, and representing me in legal proceedings
+4. **Business Matters:** Operating business interests and making business decisions
+5. **Government Matters:** Dealing with government agencies and departments
+
+{% elif power_type == "specific" %}
+I hereby grant to my Attorney-in-Fact the following specific powers:
+
+{% for power in specific_powers %}
+{{ loop.index }}. {{ power }}
+{% endfor %}
+
+{% elif power_type == "limited" %}
+This Power of Attorney is limited to the following matters:
+
+{% for limitation in limitations %}
+{{ loop.index }}. {{ limitation }}
+{% endfor %}
+
+**Duration:** {{ duration }}
+{% endif %}
+
+---
+
+## LIMITATIONS AND RESTRICTIONS
+
+{% if restrictions %}
+The following limitations apply to this Power of Attorney:
+
+{% for restriction in restrictions %}
+- {{ restriction }}
+{% endfor %}
+{% endif %}
+
+My Attorney-in-Fact shall NOT have the power to:
+1. Make or change a will
+2. Make gifts exceeding KES {{ gift_limit|default(100000) }} per year
+3. Create or change beneficiary designations
+4. Delegate this authority to another person
+
+---
+
+## EFFECTIVE PERIOD
+
+{% if effective_type == "immediate" %}
+This Power of Attorney shall be effective immediately upon execution and shall remain in effect until revoked.
+
+{% elif effective_type == "springing" %}
+This Power of Attorney shall become effective only upon my incapacity as certified by {{ incapacity_certifier|default("a licensed physician") }}.
+
+{% elif effective_type == "limited_time" %}
+This Power of Attorney shall be effective from {{ start_date }} to {{ end_date }}.
+{% endif %}
+
+---
+
+## REVOCATION
+
+I reserve the right to revoke this Power of Attorney at any time by providing written notice to my Attorney-in-Fact and any third parties who may be relying on this document.
+
+---
+
+## INDEMNIFICATION
+
+I agree to indemnify and hold harmless my Attorney-in-Fact from any claims, damages, or expenses arising from their good faith exercise of the powers granted herein.
+
+---
+
+## LEGAL COMPLIANCE
+
+This Power of Attorney is executed in accordance with Kenyan law, specifically:
+
+{% for reference in legal_references %}
+- {{ reference }}
+{% endfor %}
+
+---
+
+## EXECUTION
+
+IN WITNESS WHEREOF, I have executed this Power of Attorney this {{ execution_date }} day of {{ execution_month }}, {{ execution_year }}.
+
+**PRINCIPAL:**  
+Signed: _______________________________  
+{{ principal_name }}
+
+**ATTORNEY-IN-FACT ACCEPTANCE:**  
+I accept the appointment as Attorney-in-Fact and agree to act in the best interests of the Principal.
+
+Signed: _______________________________  
+{{ attorney_name }}
+
+**WITNESSES:**  
+Signed: _______________________________  
+Witness 1: {{ witness1_name }}
+
+Signed: _______________________________  
+Witness 2: {{ witness2_name }}
+
+**NOTARIZATION:**  
+Sworn to and subscribed before me this {{ execution_date }} day of {{ execution_month }}, {{ execution_year }}.
+
+_______________________________  
+Notary Public
+
+---
+
+**Document Generated:** {{ generation_date }}  
+**Template Version:** {{ template_version }}  
+**Legal Review Required:** Yes
+
+*This document requires notarization and professional legal review.*
+        

@@ -1,0 +1,423 @@
+/* HNC Legal Questionnaire - Custom Styling */
+
+/* Global Variables */
+:root {
+    --primary-color: #1f2937;
+    --secondary-color: #3b82f6;
+    --accent-color: #10b981;
+    --error-color: #ef4444;
+    --warning-color: #f59e0b;
+    --success-color: #22c55e;
+    --background-color: #f8fafc;
+    --card-background: #ffffff;
+    --text-primary: #111827;
+    --text-secondary: #6b7280;
+    --border-color: #e5e7eb;
+    --hover-color: #f3f4f6;
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    --border-radius: 8px;
+    --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* Font Import */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* Global Styles */
+.main {
+    font-family: var(--font-family);
+    background-color: var(--background-color);
+    color: var(--text-primary);
+}
+
+/* Header Styling */
+.main > div:first-child h1 {
+    color: var(--primary-color);
+    font-weight: 700;
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    text-align: center;
+    border-bottom: 3px solid var(--secondary-color);
+    padding-bottom: 1rem;
+}
+
+/* Sidebar Styling */
+.sidebar .sidebar-content {
+    background: linear-gradient(135deg, var(--primary-color) 0%, #374151 100%);
+    color: white;
+    border-radius: var(--border-radius);
+    margin: 1rem;
+    padding: 1.5rem;
+    box-shadow: var(--shadow-lg);
+}
+
+.sidebar .sidebar-content h1 {
+    color: white !important;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+/* Button Styling */
+.stButton > button {
+    border: none;
+    border-radius: var(--border-radius);
+    padding: 0.75rem 1.5rem;
+    font-weight: 500;
+    font-family: var(--font-family);
+    transition: all 0.2s ease;
+    box-shadow: var(--shadow-sm);
+    cursor: pointer;
+}
+
+.stButton > button[kind="primary"] {
+    background: linear-gradient(135deg, var(--secondary-color) 0%, #2563eb 100%);
+    color: white;
+    border: 2px solid transparent;
+}
+
+.stButton > button[kind="primary"]:hover {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
+}
+
+.stButton > button[kind="secondary"] {
+    background: white;
+    color: var(--secondary-color);
+    border: 2px solid var(--secondary-color);
+}
+
+.stButton > button[kind="secondary"]:hover {
+    background: var(--secondary-color);
+    color: white;
+    box-shadow: var(--shadow-md);
+}
+
+/* Success Button (Submit) */
+.stButton > button:contains("Submit") {
+    background: linear-gradient(135deg, var(--success-color) 0%, #16a34a 100%);
+    color: white;
+    font-weight: 600;
+}
+
+/* Error/Logout Button */
+.stButton > button:contains("Logout") {
+    background: linear-gradient(135deg, var(--error-color) 0%, #dc2626 100%);
+    color: white;
+}
+
+/* Input Field Styling */
+.stTextInput > div > div > input,
+.stTextArea > div > div > textarea,
+.stSelectbox > div > div > select,
+.stNumberInput > div > div > input {
+    border: 2px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 0.75rem;
+    font-family: var(--font-family);
+    transition: border-color 0.2s ease;
+    background-color: white;
+}
+
+.stTextInput > div > div > input:focus,
+.stTextArea > div > div > textarea:focus,
+.stSelectbox > div > div > select:focus,
+.stNumberInput > div > div > input:focus {
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    outline: none;
+}
+
+/* Required Field Indicator */
+.stTextInput label:contains("*"),
+.stSelectbox label:contains("*") {
+    color: var(--error-color);
+    font-weight: 500;
+}
+
+/* Expander Styling */
+.streamlit-expanderHeader {
+    background: linear-gradient(135deg, white 0%, #f8fafc 100%);
+    border: 2px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 1rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+    transition: all 0.2s ease;
+}
+
+.streamlit-expanderHeader:hover {
+    border-color: var(--secondary-color);
+    box-shadow: var(--shadow-sm);
+}
+
+.streamlit-expanderContent {
+    border: 1px solid var(--border-color);
+    border-top: none;
+    border-radius: 0 0 var(--border-radius) var(--border-radius);
+    padding: 1.5rem;
+    background-color: white;
+    box-shadow: var(--shadow-sm);
+}
+
+/* Dataframe Styling */
+.stDataFrame {
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+    margin: 1rem 0;
+}
+
+.stDataFrame > div {
+    border: none;
+}
+
+.stDataFrame table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.stDataFrame th {
+    background: linear-gradient(135deg, var(--primary-color) 0%, #374151 100%);
+    color: white;
+    font-weight: 600;
+    padding: 1rem;
+    text-align: left;
+}
+
+.stDataFrame td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.stDataFrame tr:nth-child(even) {
+    background-color: #f9fafb;
+}
+
+.stDataFrame tr:hover {
+    background-color: var(--hover-color);
+}
+
+/* Metric Styling */
+.metric-container {
+    background: linear-gradient(135deg, white 0%, #f8fafc 100%);
+    border: 2px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    text-align: center;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.2s ease;
+}
+
+.metric-container:hover {
+    border-color: var(--accent-color);
+    box-shadow: var(--shadow-md);
+}
+
+/* Alert Styling */
+.stAlert {
+    border-radius: var(--border-radius);
+    border: none;
+    box-shadow: var(--shadow-sm);
+    margin: 1rem 0;
+}
+
+.stAlert[data-baseweb="notification"] {
+    padding: 1rem 1.5rem;
+}
+
+/* Success Alert */
+.stAlert .stMarkdown:contains("✅"),
+.stAlert .stMarkdown:contains("🎉") {
+    background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+    border-left: 4px solid var(--success-color);
+    color: #166534;
+}
+
+/* Error Alert */
+.stAlert .stMarkdown:contains("❌"),
+.stAlert .stMarkdown:contains("✗") {
+    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+    border-left: 4px solid var(--error-color);
+    color: #991b1b;
+}
+
+/* Warning Alert */
+.stAlert .stMarkdown:contains("⚠"),
+.stAlert .stMarkdown:contains("⚠️") {
+    background: linear-gradient(135deg, #fef3c7 0%, #fed7aa 100%);
+    border-left: 4px solid var(--warning-color);
+    color: #92400e;
+}
+
+/* Info Alert */
+.stAlert .stMarkdown:contains("ℹ"),
+.stAlert .stMarkdown:contains("💡") {
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    border-left: 4px solid var(--secondary-color);
+    color: #1e40af;
+}
+
+/* Progress Bar Styling */
+.stProgress > div > div {
+    background: linear-gradient(90deg, var(--secondary-color) 0%, var(--accent-color) 100%);
+    height: 8px;
+    border-radius: 4px;
+}
+
+/* Spinner Styling */
+.stSpinner > div {
+    border-color: var(--secondary-color) transparent transparent transparent;
+}
+
+/* Column Layout Improvements */
+.row-widget {
+    padding: 0.5rem 0;
+}
+
+/* Form Container */
+.stForm {
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    margin: 1rem 0;
+    box-shadow: var(--shadow-sm);
+}
+
+/* Help Text Styling */
+.help {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    font-style: italic;
+    margin-top: 0.25rem;
+}
+
+/* Code Block Styling */
+.stCodeBlock {
+    background: #f1f5f9;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 1rem;
+    font-family: 'Monaco', 'Menlo', monospace;
+    font-size: 0.875rem;
+    color: var(--primary-color);
+}
+
+/* JSON Display Styling */
+.stJson {
+    background: #f8fafc;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-sm);
+}
+
+/* Divider Styling */
+hr {
+    border: none;
+    height: 2px;
+    background: linear-gradient(90deg, transparent 0%, var(--border-color) 50%, transparent 100%);
+    margin: 2rem 0;
+}
+
+/* Footer Styling */
+.footer {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-secondary);
+    border-top: 1px solid var(--border-color);
+    margin-top: 3rem;
+    background: white;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .main > div:first-child h1 {
+        font-size: 2rem;
+    }
+    
+    .stButton > button {
+        width: 100%;
+        margin: 0.25rem 0;
+    }
+    
+    .streamlit-expanderContent {
+        padding: 1rem;
+    }
+}
+
+/* Animation Classes */
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.slide-in {
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from { transform: translateX(-10px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+/* Custom Classes for Enhanced UI */
+.card {
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    margin: 1rem 0;
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow 0.2s ease;
+}
+
+.card:hover {
+    box-shadow: var(--shadow-md);
+}
+
+.card-header {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.highlight {
+    background: linear-gradient(135deg, #fef3c7 0%, #fed7aa 100%);
+    padding: 0.5rem 1rem;
+    border-radius: var(--border-radius);
+    border-left: 4px solid var(--warning-color);
+    margin: 1rem 0;
+}
+
+/* Status Indicators */
+.status-success {
+    color: var(--success-color);
+    font-weight: 600;
+}
+
+.status-error {
+    color: var(--error-color);
+    font-weight: 600;
+}
+
+.status-warning {
+    color: var(--warning-color);
+    font-weight: 600;
+}
+
+.status-info {
+    color: var(--secondary-color);
+    font-weight: 600;
+}

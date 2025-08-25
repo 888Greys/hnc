@@ -1,0 +1,177 @@
+services:
+  # PostgreSQL Database
+  hnc-database:
+    image: postgres:15-alpine
+    container_name: hnc-legal-database
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=hnc_legal
+      - POSTGRES_USER=hnc_user
+      - POSTGRES_PASSWORD=hnc_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hnc_user -d hnc_legal"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - hnc-network
+
+  # Redis Cache
+  hnc-redis:
+    image: redis:7-alpine
+    container_name: hnc-legal-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - hnc-network
+
+  # FastAPI Backend
+  hnc-backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: hnc-legal-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      # Mount data directory for persistence
+      - ./data:/app/data
+      # Mount .env file for environment variables
+      - ./.env:/app/.env:ro
+    environment:
+      # Application environment
+      - PYTHONPATH=/app
+      - DATA_DIR=/app/data
+      - DATABASE_URL=postgresql://hnc_user:hnc_password@hnc-database:5432/hnc_legal
+      - REDIS_URL=redis://hnc-redis:6379/0
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - hnc-network
+    depends_on:
+      - hnc-database
+      - hnc-redis
+
+  # Next.js Frontend
+  hnc-frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: hnc-legal-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - API_BASE_URL=http://hnc-backend:8000
+      - NODE_ENV=production
+    depends_on:
+      - hnc-backend
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - hnc-network
+
+  # Development Services (use with --profile dev)
+  hnc-backend-dev:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: hnc-legal-backend-dev
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+      - ./data:/app/data
+      - ./.env:/app/.env:ro
+    environment:
+      - PYTHONPATH=/app
+      - DATA_DIR=/app/data
+      - DATABASE_URL=postgresql://hnc_user:hnc_password@hnc-database:5432/hnc_legal
+      - REDIS_URL=redis://hnc-redis:6379/0
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+    restart: unless-stopped
+    networks:
+      - hnc-network
+    depends_on:
+      - hnc-database
+      - hnc-redis
+    profiles:
+      - dev
+
+  hnc-frontend-dev:
+    image: node:18-alpine
+    container_name: hnc-legal-frontend-dev
+    working_dir: /app
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - API_BASE_URL=http://hnc-backend-dev:8000
+      - NODE_ENV=development
+    command: sh -c "npm install && npm run dev"
+    depends_on:
+      - hnc-backend-dev
+    restart: unless-stopped
+    networks:
+      - hnc-network
+    profiles:
+      - dev
+
+  # Production Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    container_name: hnc-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - hnc-frontend
+      - hnc-backend
+    restart: unless-stopped
+    networks:
+      - hnc-network
+    profiles:
+      - production
+
+networks:
+  hnc-network:
+    driver: bridge
+
+volumes:
+  hnc-data:
+    driver: local
+  node_modules:
+    driver: local
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local

@@ -1,0 +1,218 @@
+
+# BUSINESS SUCCESSION PLAN
+
+**{{ business_name|upper }}**  
+**Registration Number:** {{ business_registration_number }}
+
+---
+
+## EXECUTIVE SUMMARY
+
+{{ executive_summary }}
+
+---
+
+## BUSINESS INFORMATION
+
+**Business Name:** {{ business_name }}  
+**Type:** {{ business_type }}  
+**Registration Number:** {{ business_registration_number }}  
+**Date Established:** {{ establishment_date }}  
+**Current Value:** KES {{ business_value|number_format }}  
+**Annual Revenue:** KES {{ annual_revenue|number_format }}  
+**Number of Employees:** {{ employee_count }}
+
+### Key Business Assets
+{% for asset in key_assets %}
+**{{ asset.type }}**  
+Description: {{ asset.description }}  
+Value: KES {{ asset.value|number_format }}  
+Critical to Operations: {{ asset.critical|default("Yes") }}
+
+{% endfor %}
+
+---
+
+## CURRENT OWNERSHIP STRUCTURE
+
+{% for owner in current_owners %}
+**{{ owner.name }}**  
+Ownership Percentage: {{ owner.percentage }}%  
+Role: {{ owner.role }}  
+Age: {{ owner.age }}  
+Succession Priority: {{ owner.succession_priority }}
+
+{% endfor %}
+
+---
+
+## SUCCESSION OBJECTIVES
+
+{% for objective in succession_objectives %}
+{{ loop.index }}. {{ objective }}
+{% endfor %}
+
+---
+
+## SUCCESSION STRATEGY
+
+### Management Succession
+
+#### Key Positions
+{% for position in key_positions %}
+**{{ position.title }}**  
+Current Holder: {{ position.current_holder }}  
+Age: {{ position.age }}  
+Retirement Timeline: {{ position.retirement_timeline }}  
+Successor: {{ position.successor }}  
+Development Plan: {{ position.development_plan }}
+
+{% endfor %}
+
+### Ownership Succession
+
+{{ ownership_succession_strategy }}
+
+#### Succession Options Considered
+{% for option in succession_options %}
+**{{ option.type }}**  
+Description: {{ option.description }}  
+Advantages: {{ option.advantages }}  
+Disadvantages: {{ option.disadvantages }}  
+Selected: {{ option.selected }}
+
+{% endfor %}
+
+---
+
+## VALUATION AND FINANCING
+
+### Business Valuation
+**Current Valuation Method:** {{ valuation_method }}  
+**Current Value:** KES {{ current_business_value|number_format }}  
+**Valuation Date:** {{ valuation_date }}  
+**Valuation Frequency:** {{ valuation_frequency }}
+
+### Financing Strategy
+{{ financing_strategy }}
+
+#### Funding Sources
+{% for source in funding_sources %}
+**{{ source.type }}**  
+Amount: KES {{ source.amount|number_format }}  
+Terms: {{ source.terms }}  
+Approval Status: {{ source.status }}
+
+{% endfor %}
+
+---
+
+## IMPLEMENTATION TIMELINE
+
+{% for phase in implementation_phases %}
+### Phase {{ loop.index }}: {{ phase.name }}
+**Timeline:** {{ phase.timeline }}  
+**Objectives:** {{ phase.objectives }}  
+**Key Actions:**
+{% for action in phase.actions %}
+- {{ action }}
+{% endfor %}
+**Success Metrics:** {{ phase.success_metrics }}
+
+{% endfor %}
+
+---
+
+## RISK MANAGEMENT
+
+{% for risk in identified_risks %}
+### {{ risk.category }} Risk: {{ risk.level }}
+**Description:** {{ risk.description }}  
+**Impact:** {{ risk.impact }}  
+**Mitigation Strategy:** {{ risk.mitigation }}  
+**Contingency Plan:** {{ risk.contingency }}
+
+{% endfor %}
+
+---
+
+## LEGAL AND TAX CONSIDERATIONS
+
+### Corporate Governance
+{{ corporate_governance_plan }}
+
+### Tax Planning
+{{ tax_planning_strategy }}
+
+### Legal Documentation Required
+{% for document in required_documents %}
+{{ loop.index }}. {{ document.type }} - {{ document.description }}
+   Status: {{ document.status }}
+   Deadline: {{ document.deadline }}
+
+{% endfor %}
+
+---
+
+## COMMUNICATION PLAN
+
+### Stakeholder Communication
+{{ stakeholder_communication_plan }}
+
+### Key Stakeholders
+{% for stakeholder in key_stakeholders %}
+**{{ stakeholder.name }}**  
+Role: {{ stakeholder.role }}  
+Communication Frequency: {{ stakeholder.communication_frequency }}  
+Communication Method: {{ stakeholder.communication_method }}
+
+{% endfor %}
+
+---
+
+## MONITORING AND REVIEW
+
+**Review Frequency:** {{ review_frequency }}  
+**Review Committee:** {{ review_committee }}  
+**Key Performance Indicators:**
+
+{% for kpi in key_performance_indicators %}
+- {{ kpi.metric }}: {{ kpi.target }}
+{% endfor %}
+
+---
+
+## CONTINGENCY PLANS
+
+### Emergency Succession
+{{ emergency_succession_plan }}
+
+### Business Continuity
+{{ business_continuity_plan }}
+
+---
+
+## APPROVAL AND AUTHORIZATION
+
+This Business Succession Plan has been reviewed and approved by:
+
+{% for approver in plan_approvers %}
+**{{ approver.name }}**  
+Title: {{ approver.title }}  
+Signature: _______________________________  
+Date: _______________________________
+
+{% endfor %}
+
+---
+
+**Document Prepared by:** {{ prepared_by }}  
+**Date Prepared:** {{ preparation_date }}  
+**Next Review Date:** {{ next_review_date }}
+
+**Document Generated:** {{ generation_date }}  
+**Template Version:** {{ template_version }}  
+**Implementation Status:** {{ implementation_status }}
+
+*This plan should be reviewed annually and updated as business circumstances change.*
+        

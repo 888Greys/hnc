@@ -1,0 +1,144 @@
+
+# LAST WILL AND TESTAMENT
+
+**IN THE MATTER OF THE ESTATE OF {{ client_name|upper }}**
+
+---
+
+## PERSONAL DETAILS
+
+I, **{{ client_name }}**, of {{ client_address }}, being of sound mind and disposing memory, do hereby make, publish and declare this to be my Last Will and Testament, hereby revoking all former wills and codicils by me at any time heretofore made.
+
+**Date of Birth:** {{ date_of_birth }}  
+**ID/Passport Number:** {{ id_number }}  
+**Marital Status:** {{ marital_status }}
+
+---
+
+## APPOINTMENT OF EXECUTOR
+
+I hereby nominate and appoint **{{ executor_name }}** of {{ executor_address }} to be the Executor of this my Will, and in the event of their death, incapacity, or inability to act, I appoint **{{ alternate_executor }}** as alternate Executor.
+
+I direct that no bond or other security shall be required of any Executor appointed hereunder.
+
+---
+
+## REVOCATION OF PREVIOUS WILLS
+
+I hereby revoke all wills, codicils, and other testamentary dispositions heretofore made by me.
+
+---
+
+## DEBTS AND FUNERAL EXPENSES
+
+I direct my Executor to pay all my just debts, funeral expenses, and the expenses of administering my estate as soon as practicable after my death.
+
+---
+
+## SPECIFIC BEQUESTS
+
+{% if specific_bequests %}
+### Specific Gifts and Bequests
+
+{% for bequest in specific_bequests %}
+**{{ loop.index }}.** I give and bequeath {{ bequest.description }} to {{ bequest.beneficiary }}.
+{% if bequest.condition %}
+*Condition:* {{ bequest.condition }}
+{% endif %}
+
+{% endfor %}
+{% endif %}
+
+---
+
+## DISPOSITION OF RESIDUARY ESTATE
+
+{% if residuary_disposition %}
+### Distribution of Remaining Estate
+
+After payment of all debts, expenses, and specific bequests above, I give, devise, and bequeath the rest, residue, and remainder of my estate as follows:
+
+{% for disposition in residuary_disposition %}
+**{{ loop.index }}.** {{ disposition.percentage }}% to {{ disposition.beneficiary }}
+{% if disposition.description %}
+   *{{ disposition.description }}*
+{% endif %}
+
+{% endfor %}
+{% endif %}
+
+---
+
+## GUARDIANSHIP OF MINOR CHILDREN
+
+{% if minor_children %}
+In the event that I die while any of my children are minors, I nominate and appoint **{{ guardian_name }}** as Guardian of the person and property of such minor children. In the event of their inability to serve, I nominate **{{ alternate_guardian }}** as alternate Guardian.
+{% endif %}
+
+---
+
+## TRUST PROVISIONS
+
+{% if trust_provisions %}
+### Trust for Minor Beneficiaries
+
+Any bequest to a beneficiary who is under the age of {{ trust_age|default(18) }} years at the time of my death shall be held in trust by my Executor until such beneficiary attains the age of {{ trust_age|default(18) }} years.
+
+The Trustee shall have the discretionary power to apply the whole or any part of the income and capital of the trust fund for the maintenance, education, advancement, or benefit of the beneficiary.
+{% endif %}
+
+---
+
+## GENERAL POWERS
+
+I grant to my Executor full power and authority to:
+
+1. Sell, mortgage, lease, or otherwise dispose of any part of my estate
+2. Invest and reinvest estate funds in any form of investment
+3. Carry on any business that forms part of my estate
+4. Settle any claims against my estate
+5. Exercise all powers necessary for the proper administration of my estate
+
+---
+
+## LEGAL REFERENCES
+
+This Will is made in accordance with the following Kenyan laws:
+
+{% for reference in legal_references %}
+- {{ reference }}
+{% endfor %}
+
+---
+
+## EXECUTION
+
+IN WITNESS WHEREOF, I have hereunto set my hand this {{ execution_date }} day of {{ execution_month }}, {{ execution_year }}.
+
+**SIGNED:** _______________________________  
+{{ client_name|upper }} (Testator)
+
+**WITNESSES:**
+
+We, the undersigned, do hereby certify that the above-named Testator signed this Will in our presence, and we, at their request and in their presence, and in the presence of each other, have signed our names as witnesses.
+
+**Witness 1:**  
+Name: _______________________________  
+Signature: _______________________________  
+Address: _______________________________  
+Date: _______________________________
+
+**Witness 2:**  
+Name: _______________________________  
+Signature: _______________________________  
+Address: _______________________________  
+Date: _______________________________
+
+---
+
+**Document Generated:** {{ generation_date }}  
+**Template Version:** {{ template_version }}  
+**Legal Review Required:** Yes
+
+*This document is generated for informational purposes and requires professional legal review before execution.*
+        

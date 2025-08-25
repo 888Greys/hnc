@@ -1,0 +1,13 @@
+{
+  "test_run_time": "2025-08-25T16:15:17.260708",
+  "test_status": "PASSED",
+  "templates_available": [
+    "basic_will",
+    "complex_trust",
+    "matrimonial_planning",
+    "business_succession",
+    "tax_optimization"
+  ],
+  "simple_complexity": 0.0,
+  "complex_complexity": 7.5
+}

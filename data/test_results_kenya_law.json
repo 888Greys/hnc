@@ -1,0 +1,32 @@
+{
+  "test_run_time": "2025-08-25T16:15:26.481385",
+  "database_stats": {
+    "total_acts": 8,
+    "total_cases": 2,
+    "total_procedures": 2,
+    "last_updated": "2025-08-25T16:15:26.481391",
+    "coverage_areas": [
+      "trust_creation",
+      "fiduciary_duties",
+      "will_creation",
+      "marriage_recognition",
+      "property_law",
+      "estate_planning",
+      "trust_registration",
+      "business_succession",
+      "asset_protection",
+      "estate_distribution",
+      "succession_rights",
+      "inheritance",
+      "succession",
+      "tax_planning",
+      "estate_valuation",
+      "documentation",
+      "divorce",
+      "intestate_succession",
+      "property_rights",
+      "corporate_governance"
+    ]
+  },
+  "test_status": "PASSED"
+}

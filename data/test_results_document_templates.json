@@ -1,0 +1,46 @@
+{
+  "test_run_time": "2025-08-25T16:15:21.526794",
+  "total_tests": 9,
+  "passed_tests": 9,
+  "failed_tests": 0,
+  "success_rate": 100.0,
+  "test_results": [
+    {
+      "test_name": "Template Initialization",
+      "passed": true
+    },
+    {
+      "test_name": "Document Types and Formats",
+      "passed": true
+    },
+    {
+      "test_name": "Will Generation",
+      "passed": true
+    },
+    {
+      "test_name": "Trust Deed Generation",
+      "passed": true
+    },
+    {
+      "test_name": "Asset Declaration Generation",
+      "passed": true
+    },
+    {
+      "test_name": "Document Management",
+      "passed": true
+    },
+    {
+      "test_name": "Legal Reference Integration",
+      "passed": true
+    },
+    {
+      "test_name": "Template Data Preparation",
+      "passed": true
+    },
+    {
+      "test_name": "Error Handling",
+      "passed": true
+    }
+  ],
+  "overall_status": "PASSED"
+}

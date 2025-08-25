@@ -1,0 +1,31 @@
+{
+  "bioData": {
+    "fullName": "John Doe",
+    "maritalStatus": "Married",
+    "spouseName": "Jane Doe",
+    "spouseId": null,
+    "children": "2 children"
+  },
+  "financialData": {
+    "assets": [
+      {
+        "type": "Real Estate",
+        "description": "Family home in Nairobi",
+        "value": 5000000.0
+      }
+    ],
+    "liabilities": "Mortgage loan 2M KES",
+    "incomeSources": "Salary and business income"
+  },
+  "economicContext": {
+    "economicStanding": "Middle class",
+    "distributionPrefs": "Equal distribution to spouse and children"
+  },
+  "objectives": {
+    "objective": "Estate Planning",
+    "details": "Create a will and establish trust for children education"
+  },
+  "lawyerNotes": "Client is well organized and has all documentation ready",
+  "savedAt": "2025-08-25T11:59:12.855546",
+  "submittedBy": "demo_user"
+}

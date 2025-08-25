@@ -1,0 +1,110 @@
+
+# LEGAL OPINION
+
+**{{ law_firm_name }}**  
+{{ law_firm_address }}
+
+---
+
+## CLIENT INFORMATION
+
+**Client:** {{ client_name }}  
+**Matter:** {{ matter_description }}  
+**Date:** {{ opinion_date }}  
+**Reference:** {{ reference_number }}
+
+---
+
+## EXECUTIVE SUMMARY
+
+{{ executive_summary }}
+
+---
+
+## FACTUAL BACKGROUND
+
+{{ factual_background }}
+
+---
+
+## LEGAL ANALYSIS
+
+### Applicable Law
+
+The following Kenyan laws are relevant to this matter:
+
+{% for law in applicable_laws %}
+#### {{ law.title }}
+{{ law.description }}
+
+**Relevant Provisions:**
+{% for provision in law.provisions %}
+- {{ provision }}
+{% endfor %}
+
+{% endfor %}
+
+### Legal Assessment
+
+{{ legal_assessment }}
+
+---
+
+## RECOMMENDATIONS
+
+Based on our analysis, we recommend the following:
+
+{% for recommendation in recommendations %}
+### {{ loop.index }}. {{ recommendation.title }}
+
+{{ recommendation.description }}
+
+**Priority:** {{ recommendation.priority }}  
+**Timeline:** {{ recommendation.timeline }}  
+**Estimated Cost:** {{ recommendation.cost }}
+
+{% endfor %}
+
+---
+
+## RISK ANALYSIS
+
+{% for risk in risks %}
+### {{ risk.category }} Risk: {{ risk.level }}
+
+**Description:** {{ risk.description }}  
+**Mitigation:** {{ risk.mitigation }}
+
+{% endfor %}
+
+---
+
+## CONCLUSION
+
+{{ conclusion }}
+
+---
+
+## DISCLAIMERS
+
+1. This opinion is based on current Kenyan law as of {{ opinion_date }}
+2. This opinion is specific to the facts presented and may not apply to different circumstances
+3. Legal developments may affect the validity of this opinion
+4. This opinion does not constitute a guarantee of outcome
+5. Professional legal representation is recommended for implementation
+
+---
+
+**Prepared by:** {{ lawyer_name }}  
+**Admitted Advocate:** {{ admission_number }}  
+**Law Society of Kenya Member**
+
+**Signature:** _______________________________  
+**Date:** {{ opinion_date }}
+
+---
+
+**Document Generated:** {{ generation_date }}  
+**Template Version:** {{ template_version }}  
+**Legal Review Status:** {{ review_status }}
+        

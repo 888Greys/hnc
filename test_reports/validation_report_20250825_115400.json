@@ -1,0 +1,92 @@
+{
+  "start_time": "2025-08-25T11:54:00.931460",
+  "tests": [
+    {
+      "test_name": "Backend Structure",
+      "success": false,
+      "message": "Missing files: backend/services/client_service.py, backend/services/ai_service.py",
+      "timestamp": "2025-08-25T11:54:00.931815"
+    },
+    {
+      "test_name": "Frontend Structure",
+      "success": true,
+      "message": "Required frontend files present",
+      "timestamp": "2025-08-25T11:54:00.931866"
+    },
+    {
+      "test_name": "Frontend Optional Files",
+      "success": true,
+      "message": "Found 1 optional files",
+      "timestamp": "2025-08-25T11:54:00.931948"
+    },
+    {
+      "test_name": "Docker Configuration",
+      "success": true,
+      "message": "Docker configuration files present",
+      "timestamp": "2025-08-25T11:54:00.932007"
+    },
+    {
+      "test_name": "Docker Compose Content",
+      "success": true,
+      "message": "Backend service configuration detected",
+      "timestamp": "2025-08-25T11:54:00.932399"
+    },
+    {
+      "test_name": "Documentation",
+      "success": true,
+      "message": "Required documentation files present",
+      "timestamp": "2025-08-25T11:54:00.932520"
+    },
+    {
+      "test_name": "Optional Documentation",
+      "success": true,
+      "message": "Found 1 optional docs",
+      "timestamp": "2025-08-25T11:54:00.932614"
+    },
+    {
+      "test_name": "Requirements File",
+      "success": true,
+      "message": "Core required packages listed",
+      "timestamp": "2025-08-25T11:54:00.933014"
+    },
+    {
+      "test_name": "Test Files",
+      "success": true,
+      "message": "Found 2 test files",
+      "timestamp": "2025-08-25T11:54:00.933211"
+    },
+    {
+      "test_name": "Code Quality Files",
+      "success": true,
+      "message": "Found 3 quality files",
+      "timestamp": "2025-08-25T11:54:00.933288"
+    },
+    {
+      "test_name": "Prototype Improvements",
+      "success": true,
+      "message": "Bug fixes implemented in prototype",
+      "timestamp": "2025-08-25T11:54:00.933782"
+    },
+    {
+      "test_name": "Main Application",
+      "success": true,
+      "message": "Core services properly configured",
+      "timestamp": "2025-08-25T11:54:00.934539"
+    },
+    {
+      "test_name": "Advanced Features",
+      "success": true,
+      "message": "Found 2 advanced features",
+      "timestamp": "2025-08-25T11:54:00.934604"
+    }
+  ],
+  "total_tests": 13,
+  "passed_tests": 12,
+  "failed_tests": 1,
+  "errors": [
+    "Backend Structure: Missing files: backend/services/client_service.py, backend/services/ai_service.py"
+  ],
+  "end_time": "2025-08-25T11:54:00.934632",
+  "overall_success": false,
+  "success_rate": 92.3076923076923
+}

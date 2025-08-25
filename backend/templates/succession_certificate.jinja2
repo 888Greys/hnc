@@ -1,0 +1,146 @@
+
+# APPLICATION FOR SUCCESSION CERTIFICATE
+
+**HIGH COURT OF KENYA**  
+**{{ court_station }} REGISTRY**
+
+**IN THE MATTER OF THE ESTATE OF {{ deceased_name|upper }} (DECEASED)**
+
+---
+
+## APPLICANT INFORMATION
+
+**Name:** {{ applicant_name }}  
+**ID Number:** {{ applicant_id }}  
+**Address:** {{ applicant_address }}  
+**Telephone:** {{ applicant_phone }}  
+**Relationship to Deceased:** {{ relationship_to_deceased }}
+
+---
+
+## DECEASED INFORMATION
+
+**Full Name:** {{ deceased_name }}  
+**Date of Birth:** {{ deceased_dob }}  
+**Date of Death:** {{ deceased_date_of_death }}  
+**Place of Death:** {{ place_of_death }}  
+**Last Known Address:** {{ deceased_address }}  
+**Occupation:** {{ deceased_occupation }}
+
+---
+
+## FAMILY INFORMATION
+
+### Surviving Spouse(s)
+{% if surviving_spouses %}
+{% for spouse in surviving_spouses %}
+**Name:** {{ spouse.name }}  
+**ID Number:** {{ spouse.id_number }}  
+**Marriage Date:** {{ spouse.marriage_date }}  
+**Marriage Type:** {{ spouse.marriage_type }}
+
+{% endfor %}
+{% else %}
+No surviving spouse.
+{% endif %}
+
+### Surviving Children
+{% if surviving_children %}
+{% for child in surviving_children %}
+**Name:** {{ child.name }}  
+**Date of Birth:** {{ child.dob }}  
+**ID Number:** {{ child.id_number }}  
+**Relationship:** {{ child.relationship }}
+
+{% endfor %}
+{% else %}
+No surviving children.
+{% endif %}
+
+---
+
+## ESTATE INFORMATION
+
+### Assets of the Deceased
+
+{% for asset in estate_assets %}
+**{{ loop.index }}. {{ asset.type }}**  
+Description: {{ asset.description }}  
+Location: {{ asset.location }}  
+Estimated Value: KES {{ asset.value|number_format }}  
+
+{% endfor %}
+
+**Total Estate Value:** KES {{ total_estate_value|number_format }}
+
+### Liabilities
+{% if estate_liabilities %}
+{% for liability in estate_liabilities %}
+**{{ liability.type }}**  
+Creditor: {{ liability.creditor }}  
+Amount: KES {{ liability.amount|number_format }}  
+
+{% endfor %}
+
+**Total Liabilities:** KES {{ total_liabilities|number_format }}
+{% else %}
+No known liabilities.
+{% endif %}
+
+**Net Estate Value:** KES {{ net_estate_value|number_format }}
+
+---
+
+## GROUNDS FOR APPLICATION
+
+The Applicant seeks a Succession Certificate on the following grounds:
+
+{% for ground in application_grounds %}
+{{ loop.index }}. {{ ground }}
+{% endfor %}
+
+---
+
+## PRAYERS
+
+WHEREFORE, the Applicant humbly prays that this Honourable Court may be pleased to:
+
+1. Grant a Succession Certificate in respect of the estate of the deceased
+2. Declare the Applicant as the lawful {{ succession_role }}
+3. Grant such other relief as this Honourable Court may deem fit
+4. Grant costs of this application
+
+---
+
+## SUPPORTING DOCUMENTS
+
+The following documents are attached in support of this application:
+
+{% for document in supporting_documents %}
+{{ loop.index }}. {{ document }}
+{% endfor %}
+
+---
+
+## VERIFICATION
+
+I, {{ applicant_name }}, do hereby verify that the contents of this application are true to the best of my knowledge, information and belief.
+
+**Signature:** _______________________________  
+{{ applicant_name }}  
+**Date:** {{ application_date }}
+
+**SWORN BEFORE ME:**  
+
+_______________________________  
+Magistrate/Commissioner for Oaths  
+**Date:** {{ verification_date }}
+
+---
+
+**Document Generated:** {{ generation_date }}  
+**Template Version:** {{ template_version }}  
+**Court Filing Required:** Yes
+
+*This application must be filed with the appropriate High Court registry.*
+        

@@ -1,0 +1,272 @@
+{
+  "Cap 160_Section_5": {
+    "act_name": "Succession Act",
+    "chapter": "Cap 160",
+    "section": "Section 5",
+    "title": "Requirements for Valid Will",
+    "description": "Legal requirements for creating a valid will in Kenya",
+    "legal_text": "No will shall be valid unless it is in writing and executed in the following manner: (a) it is signed at the foot or end thereof by the testator or by some other person in his presence and by his direction; (b) such signature is made or acknowledged by the testator in the presence of two or more witnesses present at the same time; (c) such witnesses attest and sign the will in the presence of the testator.",
+    "applicability": [
+      "will_creation",
+      "estate_planning",
+      "succession"
+    ],
+    "keywords": [
+      "will",
+      "testator",
+      "witnesses",
+      "signature",
+      "validity"
+    ],
+    "date_enacted": "1981",
+    "amendments": [
+      "2010 Constitution alignment"
+    ],
+    "related_acts": [
+      "Registration of Documents Act",
+      "Law of Succession Act"
+    ],
+    "practical_implications": [
+      "Will must be witnessed by two independent witnesses",
+      "Witnesses cannot be beneficiaries",
+      "Proper execution prevents will contestation",
+      "Electronic wills not recognized under current law"
+    ]
+  },
+  "Cap 160_Section_32": {
+    "act_name": "Law of Succession Act",
+    "chapter": "Cap 160",
+    "section": "Section 32",
+    "title": "Intestate Succession Rules",
+    "description": "Rules governing distribution of estate when no valid will exists",
+    "legal_text": "Where an intestate was survived by a spouse or spouses and child or children, the personal representative shall distribute the net intestate estate as follows: (a) the spouse, or if there is more than one spouse, all the spouses in equal shares, shall be entitled to the personal and household effects of the deceased absolutely, and a life interest in the whole residue of the net intestate estate; (b) the child or children shall be entitled to the remainder in the residue of the net intestate estate in equal shares.",
+    "applicability": [
+      "intestate_succession",
+      "estate_distribution"
+    ],
+    "keywords": [
+      "intestate",
+      "spouse",
+      "children",
+      "distribution",
+      "remainder"
+    ],
+    "date_enacted": "1981",
+    "amendments": [
+      "Marriage Act 2014 implications"
+    ],
+    "related_acts": [
+      "Marriage Act",
+      "Children Act"
+    ],
+    "practical_implications": [
+      "Spouse gets life interest, children get remainder",
+      "Equal sharing among multiple spouses",
+      "Personal effects go entirely to spouse(s)",
+      "Surviving spouse cannot dispose of capital freely"
+    ]
+  },
+  "Cap 470_Section_32a": {
+    "act_name": "Income Tax Act",
+    "chapter": "Cap 470",
+    "section": "Section 3(2)(a)",
+    "title": "Inheritance Tax Exemption",
+    "description": "Tax implications for inherited property",
+    "legal_text": "There shall be exempt from tax under this Act... any amount received by way of inheritance from a deceased person's estate, provided that such inheritance does not exceed five million shillings in value.",
+    "applicability": [
+      "tax_planning",
+      "inheritance",
+      "estate_valuation"
+    ],
+    "keywords": [
+      "inheritance",
+      "tax",
+      "exemption",
+      "five million",
+      "estate"
+    ],
+    "date_enacted": "1973",
+    "amendments": [
+      "2020 threshold increase to KES 5M"
+    ],
+    "related_acts": [
+      "Value Added Tax Act",
+      "Succession Act"
+    ],
+    "practical_implications": [
+      "Inheritances under KES 5M are tax-free",
+      "Excess over KES 5M subject to tax",
+      "Property transfers to spouse may have different treatment",
+      "Business assets may have special provisions"
+    ]
+  },
+  "Cap 167_Section_3": {
+    "act_name": "Trustee Act",
+    "chapter": "Cap 167",
+    "section": "Section 3",
+    "title": "Appointment of Trustees",
+    "description": "Legal framework for trust creation and trustee appointment",
+    "legal_text": "A trust may be created by any person who is of sound mind and not a minor. The person creating the trust (settlor) may appoint one or more trustees to hold and manage trust property for the benefit of beneficiaries.",
+    "applicability": [
+      "trust_creation",
+      "asset_protection",
+      "estate_planning"
+    ],
+    "keywords": [
+      "trust",
+      "trustee",
+      "settlor",
+      "beneficiary",
+      "appointment"
+    ],
+    "date_enacted": "1962",
+    "amendments": [
+      "2010 Constitution compliance"
+    ],
+    "related_acts": [
+      "Companies Act",
+      "Public Trustee Act"
+    ],
+    "practical_implications": [
+      "Trustees have fiduciary duties to beneficiaries",
+      "Trust property is separate from personal assets",
+      "Professional trustees may be appointed",
+      "Trust deed must clearly define terms and powers"
+    ]
+  },
+  "Cap 285_Section_7": {
+    "act_name": "Registration of Documents Act",
+    "chapter": "Cap 285",
+    "section": "Section 7",
+    "title": "Registration of Trust Deeds",
+    "description": "Requirements for registering trust documents",
+    "legal_text": "Every instrument creating a trust of immovable property shall be registered in the manner prescribed under this Act. Failure to register may affect the enforceability of the trust against third parties.",
+    "applicability": [
+      "trust_registration",
+      "property_law",
+      "documentation"
+    ],
+    "keywords": [
+      "registration",
+      "trust deed",
+      "immovable property",
+      "enforceability"
+    ],
+    "date_enacted": "1901",
+    "amendments": [
+      "Digital registration provisions 2019"
+    ],
+    "related_acts": [
+      "Land Registration Act",
+      "Trustee Act"
+    ],
+    "practical_implications": [
+      "Trust deeds involving land must be registered",
+      "Registration provides legal protection",
+      "Stamp duty payable on registration",
+      "Public record creates transparency"
+    ]
+  },
+  "No. 4 of 2014_Section_6": {
+    "act_name": "Marriage Act",
+    "chapter": "No. 4 of 2014",
+    "section": "Section 6",
+    "title": "Types of Marriage in Kenya",
+    "description": "Legal recognition of different marriage types",
+    "legal_text": "This Act recognizes the following systems of marriage in Kenya: (a) civil marriages; (b) Christian marriages; (c) Hindu marriages; (d) Islamic marriages; (e) customary marriages.",
+    "applicability": [
+      "marriage_recognition",
+      "succession_rights",
+      "property_rights"
+    ],
+    "keywords": [
+      "marriage",
+      "civil",
+      "christian",
+      "islamic",
+      "customary",
+      "recognition"
+    ],
+    "date_enacted": "2014",
+    "amendments": [
+      "2019 regulations"
+    ],
+    "related_acts": [
+      "Matrimonial Property Act",
+      "Law of Succession Act"
+    ],
+    "practical_implications": [
+      "All marriage types have equal legal status",
+      "Affects inheritance and property rights",
+      "Polygamous marriages recognized under customary law",
+      "Registration requirements vary by type"
+    ]
+  },
+  "No. 49 of 2013_Section_6": {
+    "act_name": "Matrimonial Property Act",
+    "chapter": "No. 49 of 2013",
+    "section": "Section 6",
+    "title": "Matrimonial Property Rights",
+    "description": "Rights and interests in matrimonial property",
+    "legal_text": "Spouses shall have equal rights at the time of marriage, during the marriage and at the dissolution of the marriage to matrimonial property.",
+    "applicability": [
+      "property_rights",
+      "divorce",
+      "estate_planning"
+    ],
+    "keywords": [
+      "matrimonial property",
+      "equal rights",
+      "spouses",
+      "dissolution"
+    ],
+    "date_enacted": "2013",
+    "amendments": [
+      "Implementation regulations 2014"
+    ],
+    "related_acts": [
+      "Marriage Act",
+      "Law of Succession Act"
+    ],
+    "practical_implications": [
+      "Both spouses have equal property rights",
+      "Applies regardless of who purchased property",
+      "Affects estate planning and will-making",
+      "Property acquired before marriage may be excluded"
+    ]
+  },
+  "No. 17 of 2015_Section_142": {
+    "act_name": "Companies Act",
+    "chapter": "No. 17 of 2015",
+    "section": "Section 142",
+    "title": "Directors' Duties and Powers",
+    "description": "Legal duties and powers of company directors",
+    "legal_text": "A director of a company shall exercise the powers and discharge the duties of his office honestly, in good faith and in the best interests of the company.",
+    "applicability": [
+      "corporate_governance",
+      "business_succession",
+      "fiduciary_duties"
+    ],
+    "keywords": [
+      "directors",
+      "duties",
+      "good faith",
+      "company interests",
+      "fiduciary"
+    ],
+    "date_enacted": "2015",
+    "amendments": [
+      "2020 insolvency provisions"
+    ],
+    "related_acts": [
+      "Insolvency Act",
+      "Capital Markets Act"
+    ],
+    "practical_implications": [
+      "Directors have fiduciary duties to company",
+      "Personal liability for breach of duties",
+      "Succession planning must consider director obligations",
+      "Corporate assets distinct from personal assets"
+    ]
+  }
+}

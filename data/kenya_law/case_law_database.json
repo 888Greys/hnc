@@ -1,0 +1,36 @@
+{
+  "virginia_edith_wambui_v_joash_ochieng_ougo_&_another": {
+    "case_name": "Virginia Edith Wambui vs Joash Ochieng Ougo & Another",
+    "citation": "[2019] eKLR",
+    "court": "Court of Appeal",
+    "year": "2019",
+    "judge": "Justice Gatembu Kairu, Justice Patrick Kiage, Justice Roselyn Nambuye",
+    "summary": "Landmark case on inheritance rights and succession law interpretation",
+    "legal_principle": "Surviving spouse's rights under intestacy laws",
+    "relevance_areas": [
+      "intestate_succession",
+      "spousal_rights",
+      "inheritance"
+    ],
+    "key_facts": "Dispute over inheritance rights between surviving spouse and deceased's relatives",
+    "decision": "Court affirmed surviving spouse's rights under Law of Succession Act",
+    "precedent_value": "binding"
+  },
+  "mary_rono_v_joseph_rono_&_2_others": {
+    "case_name": "Mary Rono vs Joseph Rono & 2 Others",
+    "citation": "[2018] eKLR",
+    "court": "High Court",
+    "year": "2018",
+    "judge": "Justice Weldon Korir",
+    "summary": "Case establishing principles for matrimonial property division",
+    "legal_principle": "Equal contribution principle in matrimonial property",
+    "relevance_areas": [
+      "matrimonial_property",
+      "divorce",
+      "property_division"
+    ],
+    "key_facts": "Division of matrimonial property upon divorce",
+    "decision": "Property divided based on contribution and circumstances",
+    "precedent_value": "persuasive"
+  }
+}

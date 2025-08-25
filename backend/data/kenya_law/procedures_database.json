@@ -1,0 +1,72 @@
+{
+  "will_registration_and_probate": {
+    "procedure_name": "Will Registration and Probate",
+    "description": "Process for registering a will and obtaining probate",
+    "required_documents": [
+      "Original will document",
+      "Death certificate",
+      "Inventory of estate assets",
+      "Beneficiary identification documents",
+      "Witness affidavits"
+    ],
+    "steps": [
+      "File probate application at High Court",
+      "Submit required documents and pay court fees",
+      "Publish notice in Kenya Gazette",
+      "Await objections period (21 days)",
+      "Attend court hearing if required",
+      "Receive grant of probate",
+      "Register grant with relevant authorities"
+    ],
+    "timeline": "3-12 months depending on complexity",
+    "costs": "Court fees range from KES 3,000 to KES 50,000 based on estate value",
+    "court_fees": "Calculated as percentage of estate value",
+    "legal_requirements": [
+      "Valid will meeting Succession Act requirements",
+      "Proper executor appointment",
+      "Complete asset disclosure",
+      "Beneficiary notification"
+    ],
+    "common_challenges": [
+      "Will contestation by family members",
+      "Missing or inadequate documentation",
+      "Disputes over asset valuation",
+      "Executor conflicts of interest"
+    ]
+  },
+  "trust_creation_and_registration": {
+    "procedure_name": "Trust Creation and Registration",
+    "description": "Process for creating and registering a trust",
+    "required_documents": [
+      "Trust deed",
+      "Settlor identification",
+      "Trustee consent and identification",
+      "Asset transfer documents",
+      "Beneficiary details"
+    ],
+    "steps": [
+      "Draft comprehensive trust deed",
+      "Obtain trustee consent and documentation",
+      "Execute trust deed with proper witnesses",
+      "Transfer assets to trust",
+      "Register with relevant authorities",
+      "Obtain tax clearance certificates",
+      "Set up trust administration systems"
+    ],
+    "timeline": "1-6 months depending on complexity",
+    "costs": "Legal fees KES 50,000-500,000 plus registration fees",
+    "court_fees": "Registration fees vary by asset type and value",
+    "legal_requirements": [
+      "Clearly defined trust purposes",
+      "Competent trustees",
+      "Identifiable beneficiaries",
+      "Compliance with Trustee Act"
+    ],
+    "common_challenges": [
+      "Tax implications for trust creation",
+      "Beneficiary consent issues",
+      "Asset valuation disputes",
+      "Ongoing compliance requirements"
+    ]
+  }
+}

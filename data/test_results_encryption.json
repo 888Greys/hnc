@@ -1,0 +1,30 @@
+{
+  "test_run_time": "2025-08-25T11:24:03.162468",
+  "total_tests": 5,
+  "passed_tests": 4,
+  "failed_tests": 1,
+  "success_rate": 80.0,
+  "test_results": [
+    {
+      "test_name": "Encryption Service Initialization",
+      "passed": true
+    },
+    {
+      "test_name": "Basic Encryption/Decryption",
+      "passed": true
+    },
+    {
+      "test_name": "Different Encryption Levels",
+      "passed": true
+    },
+    {
+      "test_name": "Client Data Encryption",
+      "passed": true
+    },
+    {
+      "test_name": "Error Handling",
+      "passed": false
+    }
+  ],
+  "overall_status": "FAILED"
+}

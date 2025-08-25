@@ -1,0 +1,138 @@
+
+# TRUST DEED
+
+**{{ trust_name|upper }}**
+
+---
+
+## PARTIES
+
+**SETTLOR:** {{ settlor_name }} of {{ settlor_address }}
+
+**TRUSTEE(S):** 
+{% for trustee in trustees %}
+- {{ trustee.name }} of {{ trustee.address }}
+{% endfor %}
+
+**BENEFICIARIES:** 
+{% for beneficiary in beneficiaries %}
+- {{ beneficiary.name }} ({{ beneficiary.relationship }})
+{% endfor %}
+
+---
+
+## TRUST CREATION
+
+This Trust Deed is made this {{ execution_date }} day of {{ execution_month }}, {{ execution_year }}, between the Settlor and the Trustee(s) named above.
+
+## TRUST PROPERTY
+
+The Settlor hereby transfers to the Trustee(s) the following property to be held in trust:
+
+{% for asset in trust_assets %}
+**{{ loop.index }}.** {{ asset.description }}
+   - Type: {{ asset.type }}
+   - Value: KES {{ asset.value|number_format }}
+   {% if asset.location %}
+   - Location: {{ asset.location }}
+   {% endif %}
+
+{% endfor %}
+
+**Total Trust Value:** KES {{ total_trust_value|number_format }}
+
+---
+
+## TRUST PURPOSES
+
+This Trust is established for the following purposes:
+
+{% for purpose in trust_purposes %}
+{{ loop.index }}. {{ purpose }}
+{% endfor %}
+
+---
+
+## POWERS OF TRUSTEES
+
+The Trustees shall have the following powers:
+
+1. **Investment Powers:** To invest trust funds in any form of investment deemed appropriate
+2. **Management Powers:** To manage, maintain, and preserve trust property
+3. **Distribution Powers:** To distribute income and capital to beneficiaries according to this deed
+4. **Sale Powers:** To sell, mortgage, or dispose of trust property when necessary
+5. **Professional Advice:** To engage professional advisors including lawyers, accountants, and investment managers
+
+---
+
+## DISTRIBUTION PROVISIONS
+
+### Income Distribution
+{% if income_distribution %}
+{{ income_distribution }}
+{% else %}
+Income shall be distributed annually among beneficiaries in equal shares unless otherwise directed by the Trustees.
+{% endif %}
+
+### Capital Distribution
+{% if capital_distribution %}
+{{ capital_distribution }}
+{% else %}
+Capital may be distributed at the discretion of the Trustees for the benefit, advancement, or maintenance of beneficiaries.
+{% endif %}
+
+---
+
+## TRUSTEE DUTIES
+
+The Trustees shall:
+
+1. Act in the best interests of the beneficiaries
+2. Exercise reasonable care and skill in managing trust property
+3. Keep proper accounts and records
+4. Provide annual statements to beneficiaries
+5. Act impartially between beneficiaries
+6. Not profit from their position without proper authorization
+
+---
+
+## LEGAL COMPLIANCE
+
+This Trust is established in accordance with:
+
+{% for reference in legal_references %}
+- {{ reference }}
+{% endfor %}
+
+---
+
+## EXECUTION
+
+IN WITNESS WHEREOF the parties have executed this Trust Deed on the date first written above.
+
+**SETTLOR:**  
+Signed: _______________________________  
+{{ settlor_name }}
+
+**TRUSTEES:**  
+{% for trustee in trustees %}
+Signed: _______________________________  
+{{ trustee.name }}
+
+{% endfor %}
+
+**WITNESSES:**  
+Signed: _______________________________  
+Witness 1
+
+Signed: _______________________________  
+Witness 2
+
+---
+
+**Document Generated:** {{ generation_date }}  
+**Template Version:** {{ template_version }}  
+**Legal Review Required:** Yes
+
+*This document requires professional legal review and proper registration.*
+        
