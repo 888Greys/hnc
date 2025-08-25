@@ -1,0 +1,6 @@
+streamlit
+pandas
+cerebras-cloud-sdk
+python-dotenv
+# Optional for production encryption
+# cryptography
