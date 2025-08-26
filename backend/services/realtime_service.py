@@ -28,6 +28,16 @@ class NotificationType(Enum):
     SYSTEM_ALERT = "system_alert"
     FORM_AUTO_SAVE = "form_auto_save"
     COLLABORATION_UPDATE = "collaboration_update"
+    # Enhanced legal process notifications
+    WILL_DRAFT_READY = "will_draft_ready"
+    TRUST_SETUP_COMPLETE = "trust_setup_complete"
+    ASSET_VALUATION_REQUIRED = "asset_valuation_required"
+    COMPLIANCE_DEADLINE = "compliance_deadline"
+    DOCUMENT_SIGNING_REQUIRED = "document_signing_required"
+    BENEFICIARY_VERIFICATION_NEEDED = "beneficiary_verification_needed"
+    TAX_IMPLICATION_ALERT = "tax_implication_alert"
+    PROBATE_STATUS_UPDATE = "probate_status_update"
+    LEGAL_MILESTONE_REACHED = "legal_milestone_reached"
 
 
 class Priority(Enum):
@@ -396,16 +406,89 @@ realtime_service = RealTimeService()
 
 # Utility functions for common notifications
 async def notify_client_created(client_id: str, client_name: str, created_by: str):
-    """Send notification when a new client is created"""
-    notification = RealTimeNotification(
-        id=f"client_created_{client_id}_{int(datetime.now().timestamp())}",
-        type=NotificationType.CLIENT_CREATED,
-        priority=Priority.MEDIUM,
-        title="New Client Created",
-        message=f"Client '{client_name}' has been created by {created_by}",
-        data={"client_id": client_id, "client_name": client_name, "created_by": created_by}
-    )
-    await realtime_service.send_notification(notification)
+    """Send notification when a new client is created with real client data"""
+    try:
+        # Import here to avoid circular imports
+        import sys
+        import os
+        sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+        
+        # Load real client data
+        def load_client_data_local(client_id: str) -> dict:
+            try:
+                import json
+                import os
+                data_dir = os.getenv("DATA_DIR", "data")
+                client_file_path = os.path.join(data_dir, "clients", f"{client_id}.json")
+                if os.path.exists(client_file_path):
+                    with open(client_file_path, "r", encoding="utf-8") as f:
+                        return json.load(f)
+                return {}
+            except Exception as e:
+                logger.error(f"Error loading client data: {e}")
+                return {}
+        
+        client_data = load_client_data_local(client_id)
+        
+        # Extract real client information
+        bio_data = client_data.get('bioData', {})
+        financial_data = client_data.get('financialData', {})
+        objectives = client_data.get('objectives', {})
+        
+        objective = objectives.get('objective', 'Unknown')
+        marital_status = bio_data.get('maritalStatus', 'Unknown')
+        assets = financial_data.get('assets', [])
+        total_asset_value = sum(asset.get('value', 0) for asset in assets)
+        
+        # Determine notification priority based on case complexity
+        priority = Priority.HIGH if total_asset_value > 10000000 else Priority.MEDIUM  # 10M KES threshold
+        
+        notification = RealTimeNotification(
+            id=f"client_created_{client_id}_{int(datetime.now().timestamp())}",
+            type=NotificationType.CLIENT_CREATED,
+            priority=priority,
+            title="New Client Registered",
+            message=f"Client '{client_name}' registered with {objective.lower()} objective (Assets: KES {total_asset_value:,})",
+            data={
+                "client_id": client_id,
+                "client_name": client_name,
+                "objective": objective,
+                "created_by": created_by,
+                "asset_count": len(assets),
+                "total_asset_value": total_asset_value,
+                "marital_status": marital_status,
+                "complexity_level": "high" if total_asset_value > 10000000 else "medium",
+                "legal_considerations": {
+                    "inheritance_tax_applicable": total_asset_value > 5000000,  # 5M KES threshold
+                    "probate_required": objective in ['Create Will', 'Create Trust'],
+                    "asset_valuation_needed": len(assets) > 3
+                }
+            },
+            user_id=created_by
+        )
+        await realtime_service.send_notification(notification)
+        
+        # Broadcast to legal team members for high-value cases
+        if total_asset_value > 10000000:
+            await realtime_service.broadcast_user_activity(
+                created_by, created_by, 
+                f"registered high-value client: {client_name} (KES {total_asset_value:,})"
+            )
+            
+        logger.info(f"Enhanced notification sent for client {client_id} with real data")
+        
+    except Exception as e:
+        logger.error(f"Error in enhanced notify_client_created: {e}")
+        # Fallback to basic notification
+        notification = RealTimeNotification(
+            id=f"client_created_{client_id}_{int(datetime.now().timestamp())}",
+            type=NotificationType.CLIENT_CREATED,
+            priority=Priority.MEDIUM,
+            title="New Client Created",
+            message=f"Client '{client_name}' has been created by {created_by}",
+            data={"client_id": client_id, "client_name": client_name, "created_by": created_by}
+        )
+        await realtime_service.send_notification(notification)
 
 
 async def notify_ai_suggestion_ready(client_id: str, user_id: str):
@@ -447,3 +530,264 @@ async def notify_system_alert(message: str, priority: Priority = Priority.MEDIUM
         data={"alert_time": datetime.now().isoformat()}
     )
     await realtime_service.send_notification(notification)
+
+
+async def notify_legal_milestone_reached(client_id: str, milestone: str, user_id: str):
+    """Send notification when a legal milestone is reached with real client context"""
+    try:
+        # Load real client data for context
+        import json
+        import os
+        data_dir = os.getenv("DATA_DIR", "data")
+        client_file_path = os.path.join(data_dir, "clients", f"{client_id}.json")
+        
+        client_data = {}
+        if os.path.exists(client_file_path):
+            with open(client_file_path, "r", encoding="utf-8") as f:
+                client_data = json.load(f)
+        
+        client_name = client_data.get('bioData', {}).get('fullName', 'Unknown Client')
+        objective = client_data.get('objectives', {}).get('objective', 'Unknown')
+        assets = client_data.get('financialData', {}).get('assets', [])
+        total_value = sum(asset.get('value', 0) for asset in assets)
+        
+        # Determine next steps based on milestone and real data
+        next_steps = []
+        legal_implications = []
+        
+        if milestone == "will_drafted":
+            next_steps = [
+                "Schedule will review with client",
+                "Arrange witness signing appointment",
+                "Prepare probate documentation"
+            ]
+            legal_implications = [
+                f"Inheritance tax applicable: {total_value > 5000000}",
+                "Probate registration required",
+                "Asset valuation documentation needed"
+            ]
+        elif milestone == "trust_established":
+            next_steps = [
+                "Transfer assets to trust",
+                "Establish trust management protocols",
+                "Setup beneficiary communications"
+            ]
+            legal_implications = [
+                "Trust tax obligations apply",
+                "Asset transfer documentation required",
+                "Ongoing fiduciary responsibilities"
+            ]
+        
+        priority = Priority.HIGH if total_value > 10000000 else Priority.MEDIUM
+        
+        notification = RealTimeNotification(
+            id=f"milestone_{milestone}_{client_id}_{int(datetime.now().timestamp())}",
+            type=NotificationType.LEGAL_MILESTONE_REACHED,
+            priority=priority,
+            title=f"Legal Milestone: {milestone.replace('_', ' ').title()}",
+            message=f"Milestone '{milestone}' reached for {client_name} ({objective})",
+            data={
+                "client_id": client_id,
+                "client_name": client_name,
+                "milestone": milestone,
+                "objective": objective,
+                "asset_value": total_value,
+                "next_steps": next_steps,
+                "legal_implications": legal_implications,
+                "completion_percentage": calculate_completion_percentage(milestone, objective)
+            },
+            user_id=user_id
+        )
+        await realtime_service.send_notification(notification)
+        
+    except Exception as e:
+        logger.error(f"Error in notify_legal_milestone_reached: {e}")
+
+
+async def notify_compliance_deadline(client_id: str, deadline_type: str, days_remaining: int, user_id: str):
+    """Send notification about approaching compliance deadlines"""
+    try:
+        # Load client data for context
+        import json
+        import os
+        data_dir = os.getenv("DATA_DIR", "data")
+        client_file_path = os.path.join(data_dir, "clients", f"{client_id}.json")
+        
+        client_data = {}
+        if os.path.exists(client_file_path):
+            with open(client_file_path, "r", encoding="utf-8") as f:
+                client_data = json.load(f)
+        
+        client_name = client_data.get('bioData', {}).get('fullName', 'Unknown Client')
+        
+        priority = Priority.URGENT if days_remaining <= 7 else Priority.HIGH if days_remaining <= 30 else Priority.MEDIUM
+        
+        notification = RealTimeNotification(
+            id=f"compliance_{deadline_type}_{client_id}_{int(datetime.now().timestamp())}",
+            type=NotificationType.COMPLIANCE_DEADLINE,
+            priority=priority,
+            title=f"Compliance Deadline: {deadline_type}",
+            message=f"{deadline_type} deadline for {client_name} in {days_remaining} days",
+            data={
+                "client_id": client_id,
+                "client_name": client_name,
+                "deadline_type": deadline_type,
+                "days_remaining": days_remaining,
+                "urgency_level": "urgent" if days_remaining <= 7 else "high" if days_remaining <= 30 else "medium",
+                "required_actions": get_compliance_actions(deadline_type),
+                "legal_consequences": get_legal_consequences(deadline_type)
+            },
+            user_id=user_id
+        )
+        await realtime_service.send_notification(notification)
+        
+    except Exception as e:
+        logger.error(f"Error in notify_compliance_deadline: {e}")
+
+
+async def notify_asset_valuation_required(client_id: str, asset_type: str, reason: str, user_id: str):
+    """Send notification when asset valuation is required"""
+    try:
+        import json
+        import os
+        data_dir = os.getenv("DATA_DIR", "data")
+        client_file_path = os.path.join(data_dir, "clients", f"{client_id}.json")
+        
+        client_data = {}
+        if os.path.exists(client_file_path):
+            with open(client_file_path, "r", encoding="utf-8") as f:
+                client_data = json.load(f)
+        
+        client_name = client_data.get('bioData', {}).get('fullName', 'Unknown Client')
+        
+        notification = RealTimeNotification(
+            id=f"valuation_{asset_type}_{client_id}_{int(datetime.now().timestamp())}",
+            type=NotificationType.ASSET_VALUATION_REQUIRED,
+            priority=Priority.HIGH,
+            title=f"Asset Valuation Required: {asset_type}",
+            message=f"Professional valuation needed for {client_name}'s {asset_type} - {reason}",
+            data={
+                "client_id": client_id,
+                "client_name": client_name,
+                "asset_type": asset_type,
+                "reason": reason,
+                "estimated_cost": get_valuation_cost_estimate(asset_type),
+                "recommended_valuers": get_recommended_valuers(asset_type),
+                "legal_requirement": is_legal_requirement(asset_type, reason)
+            },
+            user_id=user_id
+        )
+        await realtime_service.send_notification(notification)
+        
+    except Exception as e:
+        logger.error(f"Error in notify_asset_valuation_required: {e}")
+
+
+def calculate_completion_percentage(milestone: str, objective: str) -> int:
+    """Calculate completion percentage based on milestone and objective"""
+    completion_map = {
+        ('Create Will', 'client_registered'): 10,
+        ('Create Will', 'assets_documented'): 30,
+        ('Create Will', 'beneficiaries_identified'): 50,
+        ('Create Will', 'will_drafted'): 75,
+        ('Create Will', 'will_signed'): 90,
+        ('Create Will', 'probate_registered'): 100,
+        
+        ('Create Trust', 'client_registered'): 10,
+        ('Create Trust', 'trust_structure_designed'): 25,
+        ('Create Trust', 'trustees_appointed'): 40,
+        ('Create Trust', 'trust_deed_drafted'): 60,
+        ('Create Trust', 'trust_established'): 80,
+        ('Create Trust', 'assets_transferred'): 100
+    }
+    
+    return completion_map.get((objective, milestone), 0)
+
+
+def get_compliance_actions(deadline_type: str) -> list:
+    """Get required actions for compliance deadlines"""
+    actions_map = {
+        "tax_filing": [
+            "Prepare tax documentation",
+            "Calculate inheritance tax liability",
+            "Submit tax returns to KRA"
+        ],
+        "probate_registration": [
+            "Compile probate documentation",
+            "Submit application to High Court",
+            "Pay probate fees"
+        ],
+        "trust_reporting": [
+            "Prepare trust annual returns",
+            "Document beneficiary distributions",
+            "Submit regulatory filings"
+        ]
+    }
+    return actions_map.get(deadline_type, ["Contact legal counsel for guidance"])
+
+
+def get_legal_consequences(deadline_type: str) -> list:
+    """Get legal consequences of missing deadlines"""
+    consequences_map = {
+        "tax_filing": [
+            "Penalties and interest charges",
+            "Potential asset freezing",
+            "Legal action by tax authorities"
+        ],
+        "probate_registration": [
+            "Delays in asset distribution",
+            "Additional court fees",
+            "Potential beneficiary disputes"
+        ],
+        "trust_reporting": [
+            "Regulatory penalties",
+            "Trust compliance violations",
+            "Potential trust dissolution"
+        ]
+    }
+    return consequences_map.get(deadline_type, ["Legal complications may arise"])
+
+
+def get_valuation_cost_estimate(asset_type: str) -> str:
+    """Get estimated cost for asset valuation"""
+    cost_map = {
+        "Real Estate": "KES 50,000 - 150,000",
+        "Business": "KES 100,000 - 500,000",
+        "Shares": "KES 25,000 - 75,000",
+        "Other": "KES 30,000 - 100,000"
+    }
+    return cost_map.get(asset_type, "Contact professional valuers for quote")
+
+
+def get_recommended_valuers(asset_type: str) -> list:
+    """Get recommended professional valuers"""
+    valuers_map = {
+        "Real Estate": [
+            "Institute of Surveyors of Kenya (ISK) members",
+            "Licensed property valuers",
+            "Real estate appraisal firms"
+        ],
+        "Business": [
+            "Certified business valuers",
+            "Audit firms with valuation services",
+            "Financial advisory consultants"
+        ],
+        "Shares": [
+            "Stock exchange approved valuers",
+            "Investment banking firms",
+            "Financial analysts"
+        ]
+    }
+    return valuers_map.get(asset_type, ["Contact professional valuation services"])
+
+
+def is_legal_requirement(asset_type: str, reason: str) -> bool:
+    """Check if valuation is legally required"""
+    legal_requirements = {
+        "inheritance_tax": True,
+        "probate_application": True,
+        "trust_establishment": True,
+        "court_order": True,
+        "regulatory_compliance": True
+    }
+    return legal_requirements.get(reason, False)

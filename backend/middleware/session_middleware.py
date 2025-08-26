@@ -171,13 +171,73 @@ class SessionDependency:
     async def __call__(self, request: Request) -> SessionInfo:
         """Get session from request state and validate permissions"""
         
-        if not hasattr(request.state, 'session'):
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="No valid session found"
+        # First try to get session from middleware (if middleware was called)
+        if hasattr(request.state, 'session'):
+            session = request.state.session
+        else:
+            # Fallback: middleware wasn't called, so handle JWT validation here
+            logger.warning(f"Middleware not called for {request.url.path}, handling JWT directly")
+            
+            # Extract JWT token
+            auth_header = request.headers.get("Authorization")
+            if not auth_header or not auth_header.startswith("Bearer "):
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="No valid session found"
+                )
+            
+            jwt_token = auth_header.split(" ")[1]
+            
+            # Validate JWT token
+            jwt_payload = auth_service.verify_token(jwt_token)
+            if not jwt_payload:
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Invalid or expired token"
+                )
+            
+            # Create temporary session from JWT
+            username = jwt_payload.get("sub")
+            role_str = jwt_payload.get("role")
+            
+            if not username or not role_str:
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Invalid token payload"
+                )
+            
+            # Get user data
+            user_data = auth_service.get_user_by_username(username)
+            if not user_data or not user_data.get("is_active", True):
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="User not found or inactive"
+                )
+            
+            # Create temporary session
+            from datetime import datetime, timezone
+            try:
+                user_role = UserRole(role_str)
+            except ValueError:
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Invalid user role"
+                )
+            
+            session = SessionInfo(
+                session_id=jwt_token,
+                user_id=user_data["id"],
+                username=username,
+                role=user_role,
+                permissions=auth_service.get_default_permissions(user_role),
+                created_at=datetime.now(timezone.utc),
+                last_activity=datetime.now(timezone.utc),
+                expires_at=datetime.fromtimestamp(jwt_payload.get("exp", 0), timezone.utc),
+                ip_address=request.client.host if request.client else "unknown",
+                user_agent=request.headers.get("user-agent", "unknown"),
+                status=SessionStatus.ACTIVE,
+                is_temporary=True
             )
-        
-        session = request.state.session
         
         # Check required permissions
         for permission in self.require_permissions:

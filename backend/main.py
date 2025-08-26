@@ -605,18 +605,27 @@ async def get_dashboard_statistics(
         active_users_response = await get_active_users(session)
         active_users_count = active_users_response.get('total_active', 0)
         
-        # Calculate system uptime (approximate from session start)
-        # For now, we'll use a simple calculation
-        uptime_days = 7  # Default placeholder
+        # Calculate real system uptime from when the service started
+        import psutil
+        boot_time = datetime.fromtimestamp(psutil.boot_time())
+        uptime = datetime.now() - boot_time
+        uptime_days = uptime.days
         
-        # Get recent activity (last 5 client submissions)
+        # Get enhanced recent activity with legal context
         recent_activities = []
-        clients_data = client_service.get_all_clients(5)  # Get last 5 clients
+        clients_data = client_service.get_all_clients(10)  # Get last 10 clients for better activity feed
         
+        # Process client activities with legal context
         for client_data in clients_data:
             bio_data = client_data.get('bioData', {})
+            financial_data = client_data.get('financialData', {})
+            objectives = client_data.get('objectives', {})
+            
             client_name = bio_data.get('fullName', 'Unknown Client')
             created_at = client_data.get('savedAt', '')
+            objective = objectives.get('objective', 'Unknown')
+            assets = financial_data.get('assets', [])
+            total_value = sum(asset.get('value', 0) for asset in assets)
             
             if created_at:
                 try:
@@ -630,29 +639,168 @@ async def get_dashboard_statistics(
                         hours = time_diff.seconds // 3600
                         time_ago = f"{hours} hour{'s' if hours != 1 else ''} ago"
                     else:
-                        minutes = time_diff.seconds // 60
+                        minutes = max(1, time_diff.seconds // 60)
                         time_ago = f"{minutes} minute{'s' if minutes != 1 else ''} ago"
                     
+                    # Enhanced activity description with legal context
+                    activity_color = 'green'
+                    if total_value > 10000000:  # High-value case
+                        activity_color = 'purple'
+                        description = f'High-value case: {client_name} registered for {objective.lower()} (KES {total_value:,})'
+                    elif total_value > 5000000:  # Medium-high value
+                        activity_color = 'orange'
+                        description = f'Significant case: {client_name} registered for {objective.lower()} (KES {total_value:,})'
+                    else:
+                        description = f'New case: {client_name} registered for {objective.lower()}'
+                    
                     recent_activities.append({
-                        'type': 'questionnaire_completed',
-                        'description': f'New questionnaire completed by {client_name}',
+                        'type': 'legal_case_registered',
+                        'description': description,
                         'time_ago': time_ago,
-                        'color': 'green'
+                        'color': activity_color,
+                        'metadata': {
+                            'client_id': client_data.get('clientId', ''),
+                            'objective': objective,
+                            'asset_value': total_value,
+                            'complexity': 'high' if total_value > 10000000 else 'medium' if total_value > 5000000 else 'standard'
+                        }
                     })
                 except Exception as e:
                     logger.warning(f"Error parsing timestamp {created_at}: {e}")
         
-        # Add some system activities
+        # Add AI proposal activities if available
+        try:
+            ai_proposals_dir = Path(os.getenv("DATA_DIR", "data")) / "ai_proposals"
+            if ai_proposals_dir.exists():
+                ai_files = list(ai_proposals_dir.glob("*.json"))
+                for ai_file in ai_files[-5:]:  # Last 5 AI proposals
+                    try:
+                        file_stat = ai_file.stat()
+                        modified_time = datetime.fromtimestamp(file_stat.st_mtime)
+                        time_diff = datetime.now() - modified_time
+                        
+                        if time_diff.days < 7:  # Only recent AI proposals
+                            if time_diff.days > 0:
+                                time_ago = f"{time_diff.days} day{'s' if time_diff.days != 1 else ''} ago"
+                            elif time_diff.seconds > 3600:
+                                hours = time_diff.seconds // 3600
+                                time_ago = f"{hours} hour{'s' if hours != 1 else ''} ago"
+                            else:
+                                minutes = max(1, time_diff.seconds // 60)
+                                time_ago = f"{minutes} minute{'s' if minutes != 1 else ''} ago"
+                            
+                            client_id = ai_file.stem
+                            recent_activities.append({
+                                'type': 'ai_analysis_completed',
+                                'description': f'AI legal analysis completed for client case {client_id[:8]}...',
+                                'time_ago': time_ago,
+                                'color': 'blue',
+                                'metadata': {
+                                    'client_id': client_id,
+                                    'analysis_type': 'legal_recommendation'
+                                }
+                            })
+                    except Exception as e:
+                        logger.warning(f"Error processing AI proposal file {ai_file}: {e}")
+        except Exception as e:
+            logger.warning(f"Error processing AI proposals directory: {e}")
+        
+        # Add document generation activities
+        try:
+            documents_dir = Path("generated_documents")
+            if documents_dir.exists():
+                doc_files = list(documents_dir.glob("*.html")) + list(documents_dir.glob("*.pdf"))
+                for doc_file in sorted(doc_files, key=lambda x: x.stat().st_mtime, reverse=True)[:5]:
+                    try:
+                        file_stat = doc_file.stat()
+                        modified_time = datetime.fromtimestamp(file_stat.st_mtime)
+                        time_diff = datetime.now() - modified_time
+                        
+                        if time_diff.days < 7:  # Only recent documents
+                            if time_diff.days > 0:
+                                time_ago = f"{time_diff.days} day{'s' if time_diff.days != 1 else ''} ago"
+                            elif time_diff.seconds > 3600:
+                                hours = time_diff.seconds // 3600
+                                time_ago = f"{hours} hour{'s' if hours != 1 else ''} ago"
+                            else:
+                                minutes = max(1, time_diff.seconds // 60)
+                                time_ago = f"{minutes} minute{'s' if minutes != 1 else ''} ago"
+                            
+                            doc_type = 'PDF' if doc_file.suffix == '.pdf' else 'HTML'
+                            recent_activities.append({
+                                'type': 'document_generated',
+                                'description': f'Legal document generated: {doc_file.stem} ({doc_type})',
+                                'time_ago': time_ago,
+                                'color': 'green',
+                                'metadata': {
+                                    'document_name': doc_file.name,
+                                    'document_type': doc_type,
+                                    'file_size': file_stat.st_size
+                                }
+                            })
+                    except Exception as e:
+                        logger.warning(f"Error processing document file {doc_file}: {e}")
+        except Exception as e:
+            logger.warning(f"Error processing documents directory: {e}")
+        
+        # Add real-time system activities with more context
         if active_users_count > 0:
             recent_activities.append({
                 'type': 'system_activity',
-                'description': f'{active_users_count} user{"s" if active_users_count != 1 else ""} currently active',
+                'description': f'{active_users_count} legal professional{"s" if active_users_count != 1 else ""} currently active',
                 'time_ago': 'now',
-                'color': 'blue'
+                'color': 'blue',
+                'metadata': {
+                    'active_count': active_users_count,
+                    'status': 'operational'
+                }
             })
         
-        # Sort by most recent and limit to 10
-        recent_activities = recent_activities[:10]
+        # Add system health indicators
+        if documents_count > 0:
+            recent_activities.append({
+                'type': 'system_health',
+                'description': f'Document generation system operational ({documents_count} total documents)',
+                'time_ago': 'continuous',
+                'color': 'green',
+                'metadata': {
+                    'total_documents': documents_count,
+                    'system_status': 'healthy'
+                }
+            })
+        
+        if ai_proposals_count > 0:
+            recent_activities.append({
+                'type': 'ai_system_health',
+                'description': f'AI legal analysis system active ({ai_proposals_count} analyses completed)',
+                'time_ago': 'continuous',
+                'color': 'purple',
+                'metadata': {
+                    'total_analyses': ai_proposals_count,
+                    'ai_status': 'operational'
+                }
+            })
+        
+        # Sort by most recent and limit to 15 for better visibility
+        recent_activities = sorted(recent_activities, 
+                                 key=lambda x: x.get('metadata', {}).get('timestamp', ''), 
+                                 reverse=True)[:15]
+        
+        # Calculate enhanced legal statistics
+        legal_stats = {
+            "high_value_cases": len([c for c in client_service.get_all_clients() 
+                                   if sum(asset.get('value', 0) for asset in 
+                                         c.get('financialData', {}).get('assets', [])) > 10000000]),
+            "inheritance_tax_cases": len([c for c in client_service.get_all_clients() 
+                                        if sum(asset.get('value', 0) for asset in 
+                                              c.get('financialData', {}).get('assets', [])) > 5000000]),
+            "will_creation_cases": len([c for c in client_service.get_all_clients() 
+                                      if c.get('objectives', {}).get('objective') == 'Create Will']),
+            "trust_creation_cases": len([c for c in client_service.get_all_clients() 
+                                       if c.get('objectives', {}).get('objective') == 'Create Trust']),
+            "pending_valuations": 0,  # Would be calculated from real valuation tracking
+            "compliance_alerts": 0   # Would be calculated from real compliance monitoring
+        }
         
         return {
             "statistics": {
@@ -662,10 +810,30 @@ async def get_dashboard_statistics(
                 "documentsCreated": documents_count,
                 "activeUsers": active_users_count,
                 "systemUptime": f"{uptime_days} days",
-                "recentClients": client_stats.get('recent_clients', 0)
+                "recentClients": client_stats.get('recent_clients', 0),
+                # Enhanced legal statistics
+                "highValueCases": legal_stats["high_value_cases"],
+                "inheritanceTaxCases": legal_stats["inheritance_tax_cases"],
+                "willCreationCases": legal_stats["will_creation_cases"],
+                "trustCreationCases": legal_stats["trust_creation_cases"],
+                "pendingValuations": legal_stats["pending_valuations"],
+                "complianceAlerts": legal_stats["compliance_alerts"]
             },
             "recent_activities": recent_activities,
             "clients_by_objective": client_stats.get('clients_by_objective', {}),
+            "legal_insights": {
+                "average_case_value": sum(sum(asset.get('value', 0) for asset in 
+                                             c.get('financialData', {}).get('assets', [])) 
+                                         for c in client_service.get_all_clients()) / max(1, client_stats.get('total_clients', 1)),
+                "most_common_objective": max(client_stats.get('clients_by_objective', {}).items(), 
+                                            key=lambda x: x[1], default=('Unknown', 0))[0],
+                "system_health": {
+                    "uptime_days": uptime_days,
+                    "active_users": active_users_count,
+                    "document_generation_active": documents_count > 0,
+                    "ai_analysis_active": ai_proposals_count > 0
+                }
+            },
             "requested_by": session.username,
             "timestamp": datetime.now().isoformat()
         }
@@ -2276,18 +2444,156 @@ async def websocket_endpoint(websocket: WebSocket, user_id: str):
 
 @app.get("/realtime/active-users")
 async def get_active_users(session: SessionInfo = Depends(any_authenticated)):
-    """Get list of currently active users"""
+    """Get list of currently active users with enhanced legal context"""
     try:
         active_users = await realtime_service.get_active_users()
+        
+        # Enhance user data with legal context
+        enhanced_users = []
+        for user in active_users:
+            enhanced_user = {
+                **user,
+                "legal_context": {
+                    "active_cases": 0,  # Would be calculated from real case tracking
+                    "current_activity": user.get('active_client_id', 'Dashboard'),
+                    "session_duration": calculate_session_duration(user.get('connected_at', '')),
+                    "legal_role": determine_legal_role(user.get('role', 'user'))
+                }
+            }
+            enhanced_users.append(enhanced_user)
+        
         return {
-            "active_users": active_users,
+            "active_users": enhanced_users,
             "total_active": len(active_users),
+            "legal_team_online": len([u for u in enhanced_users if u['legal_context']['legal_role'] in ['lawyer', 'legal_assistant']]),
             "requested_by": session.username,
             "timestamp": datetime.now().isoformat()
         }
     except Exception as e:
         logger.error(f"Error getting active users: {e}")
         raise HTTPException(status_code=500, detail="Failed to get active users")
+
+
+@app.get("/realtime/legal-activities")
+async def get_recent_legal_activities(session: SessionInfo = Depends(any_authenticated)):
+    """Get recent legal activities with detailed context"""
+    try:
+        from services.client_service import client_service
+        
+        activities = []
+        
+        # Get recent client activities with legal analysis
+        recent_clients = client_service.get_all_clients(20)
+        for client_data in recent_clients:
+            bio_data = client_data.get('bioData', {})
+            financial_data = client_data.get('financialData', {})
+            objectives = client_data.get('objectives', {})
+            
+            created_at = client_data.get('savedAt', '')
+            if created_at:
+                try:
+                    created_datetime = datetime.fromisoformat(created_at.replace('Z', '+00:00'))
+                    time_diff = datetime.now() - created_datetime.replace(tzinfo=None)
+                    
+                    if time_diff.days <= 30:  # Last 30 days
+                        client_name = bio_data.get('fullName', 'Unknown')
+                        objective = objectives.get('objective', 'Unknown')
+                        assets = financial_data.get('assets', [])
+                        total_value = sum(asset.get('value', 0) for asset in assets)
+                        
+                        activities.append({
+                            "id": f"client_{client_data.get('clientId', '')}",
+                            "type": "client_registration",
+                            "title": f"New Client: {client_name}",
+                            "description": f"Registered for {objective.lower()}",
+                            "timestamp": created_at,
+                            "legal_context": {
+                                "objective": objective,
+                                "asset_value": total_value,
+                                "complexity": "high" if total_value > 10000000 else "medium" if total_value > 5000000 else "standard",
+                                "inheritance_tax_applicable": total_value > 5000000,
+                                "probate_required": objective in ['Create Will', 'Create Trust']
+                            },
+                            "priority": "high" if total_value > 10000000 else "medium"
+                        })
+                except Exception as e:
+                    logger.warning(f"Error processing client activity: {e}")
+        
+        # Sort by timestamp and limit
+        activities = sorted(activities, key=lambda x: x['timestamp'], reverse=True)[:50]
+        
+        return {
+            "activities": activities,
+            "total_count": len(activities),
+            "legal_insights": {
+                "high_priority_cases": len([a for a in activities if a['priority'] == 'high']),
+                "inheritance_tax_cases": len([a for a in activities 
+                                            if a.get('legal_context', {}).get('inheritance_tax_applicable', False)]),
+                "will_creation_requests": len([a for a in activities 
+                                             if a.get('legal_context', {}).get('objective') == 'Create Will'])
+            },
+            "requested_by": session.username,
+            "timestamp": datetime.now().isoformat()
+        }
+        
+    except Exception as e:
+        logger.error(f"Error getting legal activities: {e}")
+        raise HTTPException(status_code=500, detail="Failed to get legal activities")
+
+
+@app.post("/realtime/notify-legal-milestone")
+async def trigger_legal_milestone_notification(
+    client_id: str,
+    milestone: str,
+    session: SessionInfo = Depends(any_authenticated)
+):
+    """Trigger a legal milestone notification"""
+    try:
+        from services.realtime_service import notify_legal_milestone_reached
+        
+        await notify_legal_milestone_reached(client_id, milestone, session.user_id)
+        
+        return {
+            "message": "Legal milestone notification sent",
+            "client_id": client_id,
+            "milestone": milestone,
+            "triggered_by": session.username,
+            "timestamp": datetime.now().isoformat()
+        }
+        
+    except Exception as e:
+        logger.error(f"Error triggering milestone notification: {e}")
+        raise HTTPException(status_code=500, detail="Failed to send milestone notification")
+
+
+def calculate_session_duration(connected_at: str) -> str:
+    """Calculate how long a user has been connected"""
+    try:
+        if not connected_at:
+            return "Unknown"
+        
+        connected_time = datetime.fromisoformat(connected_at)
+        duration = datetime.now() - connected_time
+        
+        if duration.days > 0:
+            return f"{duration.days}d {duration.seconds // 3600}h"
+        elif duration.seconds > 3600:
+            return f"{duration.seconds // 3600}h {(duration.seconds % 3600) // 60}m"
+        else:
+            return f"{duration.seconds // 60}m"
+    except Exception:
+        return "Unknown"
+
+
+def determine_legal_role(role: str) -> str:
+    """Determine legal role from system role"""
+    role_map = {
+        "admin": "system_admin",
+        "lawyer": "lawyer",
+        "assistant": "legal_assistant",
+        "user": "client"
+    }
+    return role_map.get(role, "user")
 
 
 @app.post("/realtime/broadcast")

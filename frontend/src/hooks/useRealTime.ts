@@ -139,20 +139,77 @@ export const useRealTime = ({
               
               onNotification?.(notification);
               
-              // Show toast based on priority
-              switch (notification.priority) {
-                case 'urgent':
-                  addToast({ type: 'error', title: notification.message, duration: 10000 });
+              // Enhanced notification handling for legal processes
+              switch (notification.type) {
+                case 'client_created':
+                  const clientData = notification.data;
+                  addToast({ 
+                    type: 'success', 
+                    title: `New Client: ${clientData.client_name}`,
+                    description: `${clientData.objective} case${clientData.total_asset_value ? ` - KES ${clientData.total_asset_value.toLocaleString()}` : ''}`,
+                    duration: 6000
+                  });
                   break;
-                case 'high':
-                  addToast({ type: 'warning', title: notification.message, duration: 6000 });
+
+                case 'legal_milestone_reached':
+                  const milestoneData = notification.data;
+                  addToast({ 
+                    type: 'success', 
+                    title: `Milestone: ${milestoneData.milestone.replace('_', ' ').toUpperCase()}`,
+                    description: `${milestoneData.client_name} - ${milestoneData.completion_percentage}% complete`,
+                    duration: 8000
+                  });
                   break;
-                case 'medium':
-                  addToast({ type: 'success', title: notification.message, duration: 4000 });
+
+                case 'compliance_deadline':
+                  const complianceData = notification.data;
+                  const urgencyType = complianceData.days_remaining <= 7 ? 'error' : 
+                                    complianceData.days_remaining <= 30 ? 'warning' : 'info';
+                  addToast({ 
+                    type: urgencyType, 
+                    title: `Compliance: ${complianceData.deadline_type}`,
+                    description: `${complianceData.client_name} - ${complianceData.days_remaining} days remaining`,
+                    duration: 10000
+                  });
                   break;
-                case 'low':
-                  addToast({ type: 'info', title: notification.message, duration: 3000 });
+
+                case 'asset_valuation_required':
+                  const valuationData = notification.data;
+                  addToast({ 
+                    type: 'warning', 
+                    title: `Valuation Required`,
+                    description: `${valuationData.client_name} - ${valuationData.asset_type}`,
+                    duration: 8000
+                  });
                   break;
+
+                case 'will_draft_ready':
+                case 'trust_setup_complete':
+                case 'document_generated':
+                  addToast({ 
+                    type: 'success', 
+                    title: notification.title,
+                    description: notification.message,
+                    duration: 8000
+                  });
+                  break;
+
+                default:
+                  // Fallback to priority-based notifications
+                  switch (notification.priority) {
+                    case 'urgent':
+                      addToast({ type: 'error', title: notification.message, duration: 10000 });
+                      break;
+                    case 'high':
+                      addToast({ type: 'warning', title: notification.message, duration: 6000 });
+                      break;
+                    case 'medium':
+                      addToast({ type: 'success', title: notification.message, duration: 4000 });
+                      break;
+                    case 'low':
+                      addToast({ type: 'info', title: notification.message, duration: 3000 });
+                      break;
+                  }
               }
               break;
 
