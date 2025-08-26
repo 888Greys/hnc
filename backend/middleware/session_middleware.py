@@ -37,30 +37,44 @@ class SessionMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         """Process request and validate session if required"""
         
+        logger.info(f"Session middleware ENTRY: {request.method} {request.url.path}")
+        
         # Skip session validation for excluded paths
-        if any(request.url.path.startswith(path) for path in self.excluded_paths):
+        if request.url.path == "/" or any(request.url.path.startswith(path) for path in self.excluded_paths if path != "/"):
+            logger.info(f"Path {request.url.path} is excluded, skipping middleware")
             return await call_next(request)
+        
+        logger.info(f"Processing authentication for: {request.url.path}")
         
         # Extract session token from request
         session_id = self._extract_session_token(request)
         
+        logger.info(f"Session middleware processing {request.url.path}, extracted token: {'[JWT TOKEN]' if session_id else 'None'}")
+        
         if not session_id:
+            logger.warning(f"No session token found for {request.url.path}")
             return JSONResponse(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 content={"detail": "Session token required"}
             )
         
+        logger.info(f"Attempting to validate session/JWT token for: {request.url.path}")
+        
         # Validate session - try session ID first, then JWT token
         session = session_manager.get_session(session_id)
         
         if not session or not session.is_active():
+            logger.info(f"No active session found for token, trying JWT validation...")
             # If no valid session found, try to validate as JWT token
             jwt_payload = auth_service.verify_token(session_id)
             if not jwt_payload:
+                logger.warning(f"JWT token validation failed for {request.url.path}")
                 return JSONResponse(
                     status_code=status.HTTP_401_UNAUTHORIZED,
                     content={"detail": "Invalid or expired session"}
                 )
+            
+            logger.info(f"JWT token validated successfully for user {jwt_payload.get('sub')}")
             
             # Create a temporary session info from JWT token for this request
             username = jwt_payload.get("sub")
@@ -109,8 +123,9 @@ class SessionMiddleware(BaseHTTPMiddleware):
                 is_temporary=True  # Flag to indicate this is a temporary session from JWT
             )
         
-        # Update session activity
-        session_manager.update_session_activity(session_id)
+        # Update session activity (only for non-temporary sessions)
+        if not getattr(session, 'is_temporary', False):
+            session_manager.update_session_activity(session_id)
         
         # Add session info to request state
         request.state.session = session

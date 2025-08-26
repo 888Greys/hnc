@@ -255,13 +255,13 @@ ${proposal ? `\nRecommendations:\n${proposal}` : ''}
     setIsPreviewOpen(true);
   };
 
-  const downloadDocument = (document: GeneratedDocument, format: string = exportFormat) => {
-    const content = `${document.name}\n\n${document.content}`;
+  const downloadDocument = (doc: GeneratedDocument, format: string = exportFormat) => {
+    const content = `${doc.name}\n\n${doc.content}`;
     const blob = new Blob([content], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `${document.name.replace(/\s+/g, '_')}.${format}`;
+    a.download = `${doc.name.replace(/\s+/g, '_')}.${format}`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);

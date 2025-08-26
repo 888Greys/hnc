@@ -171,6 +171,19 @@ class ApiService {
     }
   }
 
+  // Login method for compatibility (delegates to AuthContext)
+  async login(credentials: LoginRequest): Promise<{
+    access_token: string;
+    user: {
+      username: string;
+      email: string;
+      role: string;
+    };
+  }> {
+    const response = await this.api.post('/auth/login', credentials);
+    return response.data;
+  }
+
   // Questionnaire methods
   async submitQuestionnaire(data: QuestionnaireData): Promise<{ message: string; savedAt: string }> {
     try {

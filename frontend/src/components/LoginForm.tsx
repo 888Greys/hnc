@@ -27,7 +27,7 @@ export function LoginForm({ onLogin }: LoginFormProps) {
 
     try {
       const response = await apiService.login({ username, password });
-      onLogin(response.username);
+      onLogin(response.user.username);
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'Login failed. Please try again.';
       setError(errorMessage);
