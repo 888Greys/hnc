@@ -572,6 +572,111 @@ async def root():
     """Health check endpoint"""
     return {"message": "HNC Legal Questionnaire API is running", "version": "1.0.0"}
 
+@app.get("/dashboard/statistics")
+async def get_dashboard_statistics(
+    session: SessionInfo = Depends(any_authenticated)
+):
+    """Get comprehensive dashboard statistics"""
+    try:
+        from services.client_service import client_service
+        from datetime import datetime, timedelta
+        import os
+        from pathlib import Path
+        
+        # Get client statistics
+        client_stats = client_service.get_client_statistics()
+        
+        # Count completed questionnaires (same as total clients for now)
+        completed_questionnaires = client_stats.get('total_clients', 0)
+        
+        # Count AI proposals generated (check data/ai_proposals directory)
+        ai_proposals_count = 0
+        ai_proposals_dir = Path(os.getenv("DATA_DIR", "data")) / "ai_proposals"
+        if ai_proposals_dir.exists():
+            ai_proposals_count = len(list(ai_proposals_dir.glob("*.json")))
+        
+        # Count documents created (check generated_documents directory)
+        documents_count = 0
+        documents_dir = Path("generated_documents")
+        if documents_dir.exists():
+            documents_count = len(list(documents_dir.glob("*.html"))) + len(list(documents_dir.glob("*.pdf")))
+        
+        # Get active users count
+        active_users_response = await get_active_users(session)
+        active_users_count = active_users_response.get('total_active', 0)
+        
+        # Calculate system uptime (approximate from session start)
+        # For now, we'll use a simple calculation
+        uptime_days = 7  # Default placeholder
+        
+        # Get recent activity (last 5 client submissions)
+        recent_activities = []
+        clients_data = client_service.get_all_clients(5)  # Get last 5 clients
+        
+        for client_data in clients_data:
+            bio_data = client_data.get('bioData', {})
+            client_name = bio_data.get('fullName', 'Unknown Client')
+            created_at = client_data.get('savedAt', '')
+            
+            if created_at:
+                try:
+                    # Parse the timestamp and calculate time ago
+                    created_datetime = datetime.fromisoformat(created_at.replace('Z', '+00:00'))
+                    time_diff = datetime.now() - created_datetime.replace(tzinfo=None)
+                    
+                    if time_diff.days > 0:
+                        time_ago = f"{time_diff.days} day{'s' if time_diff.days != 1 else ''} ago"
+                    elif time_diff.seconds > 3600:
+                        hours = time_diff.seconds // 3600
+                        time_ago = f"{hours} hour{'s' if hours != 1 else ''} ago"
+                    else:
+                        minutes = time_diff.seconds // 60
+                        time_ago = f"{minutes} minute{'s' if minutes != 1 else ''} ago"
+                    
+                    recent_activities.append({
+                        'type': 'questionnaire_completed',
+                        'description': f'New questionnaire completed by {client_name}',
+                        'time_ago': time_ago,
+                        'color': 'green'
+                    })
+                except Exception as e:
+                    logger.warning(f"Error parsing timestamp {created_at}: {e}")
+        
+        # Add some system activities
+        if active_users_count > 0:
+            recent_activities.append({
+                'type': 'system_activity',
+                'description': f'{active_users_count} user{"s" if active_users_count != 1 else ""} currently active',
+                'time_ago': 'now',
+                'color': 'blue'
+            })
+        
+        # Sort by most recent and limit to 10
+        recent_activities = recent_activities[:10]
+        
+        return {
+            "statistics": {
+                "totalClients": client_stats.get('total_clients', 0),
+                "completedQuestionnaires": completed_questionnaires,
+                "aiProposalsGenerated": ai_proposals_count,
+                "documentsCreated": documents_count,
+                "activeUsers": active_users_count,
+                "systemUptime": f"{uptime_days} days",
+                "recentClients": client_stats.get('recent_clients', 0)
+            },
+            "recent_activities": recent_activities,
+            "clients_by_objective": client_stats.get('clients_by_objective', {}),
+            "requested_by": session.username,
+            "timestamp": datetime.now().isoformat()
+        }
+        
+    except Exception as e:
+        logger.exception(f"Error getting dashboard statistics: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail="Failed to get dashboard statistics"
+        )
+
 @app.get("/health")
 async def health_check():
     """Health check endpoint"""
@@ -861,6 +966,8 @@ async def submit_questionnaire(
 ):
     """Submit questionnaire data with enhanced persistence"""
     try:
+        from services.client_service import client_service
+        
         # Add timestamp and user info
         data.savedAt = datetime.now().isoformat()
         
@@ -869,17 +976,20 @@ async def submit_questionnaire(
         data_dict["submittedBy"] = current_user["username"]
         data_dict["submissionType"] = "questionnaire"
         
-        # Save with enhanced persistence
-        success, client_id = save_client_data(data_dict)
+        # Save with enhanced persistence using ClientService
+        success, message, file_path = client_service.save_client_data(data_dict)
         
         if success:
+            # Extract client_id from the message
+            client_id = message.split(": ")[-1] if ": " in message else data_dict.get('clientId', '')
+            
             return {
                 "message": "Questionnaire submitted successfully",
                 "clientId": client_id,
                 "savedAt": data.savedAt
             }
         else:
-            raise HTTPException(status_code=500, detail="Failed to save questionnaire data")
+            raise HTTPException(status_code=500, detail=f"Failed to save questionnaire data: {message}")
             
     except Exception as e:
         logger.exception("Error submitting questionnaire")
@@ -1024,7 +1134,9 @@ async def get_client_details(
 ):
     """Get detailed information for a specific client"""
     try:
-        client_data = load_client_data(client_id)
+        from services.client_service import client_service
+        
+        client_data = client_service.load_client_data(client_id)
         if not client_data:
             raise HTTPException(status_code=404, detail="Client not found")
         

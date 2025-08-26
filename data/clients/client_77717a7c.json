@@ -1,0 +1,39 @@
+{
+  "bioData": {
+    "fullName": "Jane Smith",
+    "maritalStatus": "Married",
+    "spouseName": "John Smith",
+    "spouseId": "12345678",
+    "children": "Alice Smith, 15 years old\nBob Smith, 12 years old"
+  },
+  "financialData": {
+    "assets": [
+      {
+        "type": "Real Estate",
+        "description": "Family home in Nairobi",
+        "value": 15000000.0
+      },
+      {
+        "type": "Bank Account",
+        "description": "KCB Savings Account",
+        "value": 2500000.0
+      }
+    ],
+    "liabilities": "Mortgage: 8,000,000 KES on family home",
+    "incomeSources": "Salary: 300,000 KES/month from ABC Corp"
+  },
+  "economicContext": {
+    "economicStanding": "Middle Income",
+    "distributionPrefs": "Equal Distribution"
+  },
+  "objectives": {
+    "objective": "Create Will",
+    "details": "Need to create a comprehensive will to protect family assets and ensure proper inheritance for children"
+  },
+  "lawyerNotes": "Client is motivated by recent family events and wants to ensure financial security for spouse and children.",
+  "savedAt": "2025-08-26T07:04:38.666956",
+  "submittedBy": "admin",
+  "submissionType": "questionnaire",
+  "clientId": "client_77717a7c",
+  "lastUpdated": "2025-08-26T07:04:38.667544"
+}

@@ -1,0 +1,34 @@
+{
+  "bioData": {
+    "fullName": "santona",
+    "maritalStatus": "Single",
+    "spouseName": "",
+    "spouseId": "",
+    "children": "Nanta\n"
+  },
+  "financialData": {
+    "assets": [
+      {
+        "type": "Real Estate",
+        "description": "good",
+        "value": 50000.0
+      }
+    ],
+    "liabilities": "mortages",
+    "incomeSources": "salary"
+  },
+  "economicContext": {
+    "economicStanding": "High Net Worth",
+    "distributionPrefs": "Need-based"
+  },
+  "objectives": {
+    "objective": "Create Will",
+    "details": "awesome"
+  },
+  "lawyerNotes": "",
+  "savedAt": "2025-08-26T07:23:34.939809",
+  "submittedBy": "admin",
+  "submissionType": "questionnaire",
+  "clientId": "client_b68ecaa6",
+  "lastUpdated": "2025-08-26T07:23:34.939813"
+}

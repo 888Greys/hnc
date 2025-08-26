@@ -1,0 +1,39 @@
+{
+  "bioData": {
+    "fullName": "Robert Chen",
+    "maritalStatus": "Divorced",
+    "spouseName": null,
+    "spouseId": null,
+    "children": "None"
+  },
+  "financialData": {
+    "assets": [
+      {
+        "type": "Bank Account",
+        "description": "Robert Chen's Savings Account",
+        "value": 2000000.0
+      },
+      {
+        "type": "Real Estate",
+        "description": "Family Home",
+        "value": 12000000.0
+      }
+    ],
+    "liabilities": "None",
+    "incomeSources": "Salary: 300,000 KES/month"
+  },
+  "economicContext": {
+    "economicStanding": "Middle Income",
+    "distributionPrefs": "Equal Distribution"
+  },
+  "objectives": {
+    "objective": "Create Will",
+    "details": "Test client Robert Chen wants to create a comprehensive will"
+  },
+  "lawyerNotes": "Test case for Robert Chen - automated testing",
+  "savedAt": "2025-08-26T07:07:07.948102",
+  "submittedBy": "admin",
+  "submissionType": "questionnaire",
+  "clientId": "client_32ab3be0",
+  "lastUpdated": "2025-08-26T07:07:07.948105"
+}

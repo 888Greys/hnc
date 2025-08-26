@@ -78,19 +78,34 @@ class ApiService {
   private token: string | null = null;
 
   constructor() {
-    this.api = axios.create({
-      baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      timeout: 30000, // 30 seconds
-    });
+    // Initialize axios instance with proper error handling
+    try {
+      this.api = axios.create({
+        baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        timeout: 30000, // 30 seconds
+      });
+    } catch (error) {
+      console.error('Failed to create axios instance:', error);
+      throw new Error('Failed to initialize API service');
+    }
 
     // Add request interceptor to include auth token
     this.api.interceptors.request.use(
       (config) => {
-        if (this.token) {
-          config.headers.Authorization = `Bearer ${this.token}`;
+        // Get token from localStorage since AuthContext manages it there
+        const authTokensStr = localStorage.getItem('auth_tokens');
+        if (authTokensStr) {
+          try {
+            const authTokens = JSON.parse(authTokensStr);
+            if (authTokens.access_token) {
+              config.headers.Authorization = `Bearer ${authTokens.access_token}`;
+            }
+          } catch (error) {
+            console.error('Failed to parse auth tokens:', error);
+          }
         }
         return config;
       },
@@ -120,10 +135,7 @@ class ApiService {
           case 400:
             return Promise.reject(new ValidationError(errorMessage));
           case 401:
-            this.token = null;
-            if (typeof window !== 'undefined') {
-              localStorage.removeItem('auth_token');
-            }
+            // Authentication failed - let AuthContext handle this
             return Promise.reject(new APIError('Authentication required', 401, 'UNAUTHORIZED'));
           case 403:
             return Promise.reject(new APIError('Access forbidden', 403, 'FORBIDDEN'));
@@ -144,54 +156,19 @@ class ApiService {
         }
       }
     );
-
-    // Load token from localStorage on initialization
-    if (typeof window !== 'undefined') {
-      this.token = localStorage.getItem('auth_token');
-    }
   }
 
-  // Authentication methods with enhanced error handling
-  async login(credentials: LoginRequest): Promise<{ token: string; username: string; loginTime: string }> {
-    // Input validation
-    validateRequired(credentials.username, 'username');
-    validateRequired(credentials.password, 'password');
-    
-    try {
-      const response = await retryRequest(() => this.api.post('/auth/login', credentials));
-      const { access_token, user } = response.data;
-      
-      if (!access_token) {
-        throw new APIError('Invalid response: missing access_token', undefined, 'INVALID_RESPONSE');
-      }
-      
-      this.token = access_token;
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('auth_token', access_token);
-      }
-      
-      return { 
-        token: access_token, 
-        username: user.username, 
-        loginTime: new Date().toISOString() 
-      };
-    } catch (error) {
-      if (error instanceof APIError && error.status === 401) {
-        throw new APIError('Invalid username or password', 401, 'INVALID_CREDENTIALS');
-      }
-      throw error;
-    }
-  }
-
-  logout(): void {
-    this.token = null;
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('auth_token');
-    }
-  }
-
+  // Authentication status check
   isAuthenticated(): boolean {
-    return !!this.token;
+    if (typeof window === 'undefined') return false;
+    const authTokensStr = localStorage.getItem('auth_tokens');
+    if (!authTokensStr) return false;
+    try {
+      const authTokens = JSON.parse(authTokensStr);
+      return !!authTokens.access_token;
+    } catch {
+      return false;
+    }
   }
 
   // Questionnaire methods
@@ -255,6 +232,10 @@ class ApiService {
     totalPages: number;
   }> {
     try {
+      if (!this.api) {
+        throw new Error('API service not initialized');
+      }
+      
       const params = new URLSearchParams();
       params.append('page', page.toString());
       params.append('limit', limit.toString());
@@ -313,6 +294,38 @@ class ApiService {
     }
   }
 
+  // Dashboard statistics
+  async getDashboardStatistics(): Promise<{
+    statistics: {
+      totalClients: number;
+      completedQuestionnaires: number;
+      aiProposalsGenerated: number;
+      documentsCreated: number;
+      activeUsers: number;
+      systemUptime: string;
+      recentClients: number;
+    };
+    recent_activities: Array<{
+      type: string;
+      description: string;
+      time_ago: string;
+      color: string;
+    }>;
+    clients_by_objective: Record<string, number>;
+  }> {
+    try {
+      if (!this.api) {
+        throw new Error('API service not initialized');
+      }
+      
+      const response = await this.api.get('/dashboard/statistics');
+      return response.data;
+    } catch (error) {
+      console.error('Failed to get dashboard statistics:', error);
+      throw new Error('Failed to get dashboard statistics. Please try again.');
+    }
+  }
+
   // Generic API call method
   async apiCall<T = any>(
     method: 'GET' | 'POST' | 'PUT' | 'DELETE',
@@ -337,19 +350,3 @@ class ApiService {
 const apiService = new ApiService();
 
 export default apiService;
-
-// Export typed methods for easier usage
-export const {
-  login,
-  logout,
-  isAuthenticated,
-  submitQuestionnaire,
-  getQuestionnaireData,
-  generateAIProposal,
-  getAssetsSummary,
-  getClients,
-  searchClients,
-  getClientDetails,
-  deleteClient,
-  healthCheck,
-} = apiService;

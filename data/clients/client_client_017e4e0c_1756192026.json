@@ -1,0 +1,39 @@
+{
+  "bioData": {
+    "fullName": "David and Mary Thompson",
+    "maritalStatus": "Married",
+    "spouseName": "Test Spouse",
+    "spouseId": "12345678",
+    "children": "Test Child, 10 years old"
+  },
+  "financialData": {
+    "assets": [
+      {
+        "type": "Bank Account",
+        "description": "David and Mary Thompson's Savings Account",
+        "value": 2000000.0
+      },
+      {
+        "type": "Real Estate",
+        "description": "Family Home",
+        "value": 12000000.0
+      }
+    ],
+    "liabilities": "None",
+    "incomeSources": "Salary: 300,000 KES/month"
+  },
+  "economicContext": {
+    "economicStanding": "Middle Income",
+    "distributionPrefs": "Equal Distribution"
+  },
+  "objectives": {
+    "objective": "Create Will",
+    "details": "Test client David and Mary Thompson wants to create a comprehensive will"
+  },
+  "lawyerNotes": "Test case for David and Mary Thompson - automated testing",
+  "savedAt": "2025-08-26T07:07:06.930538",
+  "submittedBy": "admin",
+  "submissionType": "questionnaire",
+  "clientId": "client_017e4e0c",
+  "lastUpdated": "2025-08-26T07:07:06.930541"
+}

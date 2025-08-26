@@ -271,6 +271,37 @@ class AuthenticationService:
             logger.error(f"Error searching user by email {email}: {e}")
             return None
     
+    def get_default_permissions(self, role: UserRole) -> List[str]:
+        """Get default permissions for a role"""
+        
+        permissions_map = {
+            UserRole.ADMIN: [
+                "read_all_clients",
+                "write_all_clients",
+                "delete_clients",
+                "manage_users",
+                "view_reports",
+                "export_data",
+                "system_admin",
+                "audit_logs"
+            ],
+            UserRole.LAWYER: [
+                "read_own_clients",
+                "write_own_clients",
+                "read_shared_clients",
+                "view_reports",
+                "export_data",
+                "ai_proposals"
+            ],
+            UserRole.ASSISTANT: [
+                "read_shared_clients",
+                "write_shared_clients",
+                "basic_reports"
+            ]
+        }
+        
+        return permissions_map.get(role, [])
+    
     def update_user(self, username: str, updates: UserUpdate) -> User:
         """Update user information"""
         try:

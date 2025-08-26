@@ -1,0 +1,39 @@
+{
+  "bioData": {
+    "fullName": "Sarah Williams",
+    "maritalStatus": "Single",
+    "spouseName": null,
+    "spouseId": null,
+    "children": "None"
+  },
+  "financialData": {
+    "assets": [
+      {
+        "type": "Bank Account",
+        "description": "Sarah Williams's Savings Account",
+        "value": 2000000.0
+      },
+      {
+        "type": "Real Estate",
+        "description": "Family Home",
+        "value": 12000000.0
+      }
+    ],
+    "liabilities": "None",
+    "incomeSources": "Salary: 300,000 KES/month"
+  },
+  "economicContext": {
+    "economicStanding": "Middle Income",
+    "distributionPrefs": "Equal Distribution"
+  },
+  "objectives": {
+    "objective": "Create Will",
+    "details": "Test client Sarah Williams wants to create a comprehensive will"
+  },
+  "lawyerNotes": "Test case for Sarah Williams - automated testing",
+  "savedAt": "2025-08-26T07:07:05.893628",
+  "submittedBy": "admin",
+  "submissionType": "questionnaire",
+  "clientId": "client_c9746bcf",
+  "lastUpdated": "2025-08-26T07:07:05.893631"
+}

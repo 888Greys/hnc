@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Search, Plus, Eye, Edit, Trash2, Download, Filter } from 'lucide-react';
-import { getClients, deleteClient } from '@/services/api';
+import apiService from '@/services/api';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface Client {
   id: string;
@@ -18,6 +19,7 @@ interface Client {
 
 export default function ClientsPage() {
   const router = useRouter();
+  const { isAuthenticated, isLoading: authLoading, tokens } = useAuth();
   const [clients, setClients] = useState<Client[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
@@ -25,12 +27,20 @@ export default function ClientsPage() {
   const [error, setError] = useState<string | null>(null);
   const [totalClients, setTotalClients] = useState(0);
 
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      router.push('/login');
+      return;
+    }
+  }, [isAuthenticated, authLoading, router]);
+
   const fetchClients = async (search?: string) => {
     try {
       setIsLoading(true);
       setError(null);
       
-      const response = await getClients(1, 100, search);
+      const response = await apiService.getClients(1, 100, search);
       
       if (response && response.clients) {
         setClients(response.clients);
@@ -68,7 +78,7 @@ export default function ClientsPage() {
   const handleDeleteClient = async (clientId: string, clientName: string) => {
     if (window.confirm(`Are you sure you want to delete ${clientName}?`)) {
       try {
-        await deleteClient(clientId);
+        await apiService.deleteClient(clientId);
         await fetchClients(searchTerm); // Refresh the list
       } catch (error) {
         console.error('Failed to delete client:', error);
@@ -96,6 +106,20 @@ export default function ClientsPage() {
     };
     return colors[status as keyof typeof colors] || 'bg-gray-100 text-gray-800';
   };
+
+  // Show loading while authenticating
+  if (authLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+      </div>
+    );
+  }
+
+  // Don't render if not authenticated (will redirect)
+  if (!isAuthenticated) {
+    return null;
+  }
 
   return (
     <div className="p-6">

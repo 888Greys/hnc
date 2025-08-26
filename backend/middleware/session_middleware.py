@@ -13,7 +13,7 @@ import json
 import logging
 
 from services.session_service import session_manager, SessionInfo, SessionStatus, AccessControl
-from services.auth_service import AuthenticationService, UserRole
+from services.auth_service import auth_service, UserRole
 
 
 logger = logging.getLogger(__name__)
@@ -50,12 +50,63 @@ class SessionMiddleware(BaseHTTPMiddleware):
                 content={"detail": "Session token required"}
             )
         
-        # Validate session
+        # Validate session - try session ID first, then JWT token
         session = session_manager.get_session(session_id)
+        
         if not session or not session.is_active():
-            return JSONResponse(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                content={"detail": "Invalid or expired session"}
+            # If no valid session found, try to validate as JWT token
+            jwt_payload = auth_service.verify_token(session_id)
+            if not jwt_payload:
+                return JSONResponse(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    content={"detail": "Invalid or expired session"}
+                )
+            
+            # Create a temporary session info from JWT token for this request
+            username = jwt_payload.get("sub")
+            role_str = jwt_payload.get("role")
+            
+            if not username or not role_str:
+                return JSONResponse(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    content={"detail": "Invalid token payload"}
+                )
+            
+            # Get user data to verify user still exists and is active
+            user_data = auth_service.get_user_by_username(username)
+            if not user_data or not user_data.get("is_active", True):
+                return JSONResponse(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    content={"detail": "User not found or inactive"}
+                )
+            
+            # Create a temporary session object for JWT-based requests
+            from datetime import datetime, timezone
+            try:
+                user_role = UserRole(role_str)
+            except ValueError:
+                return JSONResponse(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    content={"detail": "Invalid user role"}
+                )
+            
+            # Get client info for session
+            ip_address = request.client.host if request.client else "unknown"
+            user_agent = request.headers.get("user-agent", "unknown")
+            
+            session = SessionInfo(
+                session_id=session_id,  # Use JWT token as session ID
+                user_id=user_data["id"],
+                username=username,
+                role=user_role,
+                permissions=auth_service.get_default_permissions(user_role),
+                created_at=datetime.now(timezone.utc),
+                last_activity=datetime.now(timezone.utc),
+                expires_at=datetime.fromtimestamp(jwt_payload.get("exp", 0), timezone.utc),
+                ip_address=ip_address,
+                user_agent=user_agent,
+                status=SessionStatus.ACTIVE,
+                is_temporary=True  # Flag to indicate this is a temporary session from JWT
             )
         
         # Update session activity
@@ -78,12 +129,7 @@ class SessionMiddleware(BaseHTTPMiddleware):
     def _extract_session_token(self, request: Request) -> Optional[str]:
         """Extract session token from request headers or cookies"""
         
-        # Try Authorization header first
-        auth_header = request.headers.get("Authorization")
-        if auth_header and auth_header.startswith("Bearer "):
-            return auth_header.split(" ")[1]
-        
-        # Try session cookie
+        # Try session cookie first
         session_cookie = request.cookies.get("session_id")
         if session_cookie:
             return session_cookie
@@ -92,6 +138,11 @@ class SessionMiddleware(BaseHTTPMiddleware):
         session_header = request.headers.get("X-Session-ID")
         if session_header:
             return session_header
+        
+        # Try Authorization header (JWT token)
+        auth_header = request.headers.get("Authorization")
+        if auth_header and auth_header.startswith("Bearer "):
+            return auth_header.split(" ")[1]
         
         return None
 

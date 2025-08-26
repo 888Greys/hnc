@@ -40,6 +40,7 @@ class SessionInfo:
     status: SessionStatus
     permissions: List[str]
     expires_at: datetime
+    is_temporary: bool = False  # Flag for JWT-based temporary sessions
     
     def to_dict(self) -> Dict[str, Any]:
         """Convert session info to dictionary for storage"""

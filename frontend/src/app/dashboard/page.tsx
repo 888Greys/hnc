@@ -1,7 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Users, FileText, Brain, TrendingUp, Clock, Shield } from 'lucide-react';
+import apiService from '@/services/api';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface DashboardStats {
   totalClients: number;
@@ -10,42 +13,90 @@ interface DashboardStats {
   documentsCreated: number;
   activeUsers: number;
   systemUptime: string;
+  recentClients: number;
+}
+
+interface RecentActivity {
+  type: string;
+  description: string;
+  time_ago: string;
+  color: string;
 }
 
 export default function DashboardPage() {
+  const router = useRouter();
+  const { isAuthenticated, isLoading: authLoading, tokens } = useAuth();
   const [stats, setStats] = useState<DashboardStats>({
     totalClients: 0,
     completedQuestionnaires: 0,
     aiProposalsGenerated: 0,
     documentsCreated: 0,
     activeUsers: 0,
-    systemUptime: '0 days'
+    systemUptime: '0 days',
+    recentClients: 0
   });
+  const [recentActivities, setRecentActivities] = useState<RecentActivity[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      router.push('/login');
+      return;
+    }
+  }, [isAuthenticated, authLoading, router]);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
+      if (!isAuthenticated || authLoading) {
+        return;
+      }
+      
       try {
-        // Simulate loading data - in real app, this would fetch from API
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        setIsLoading(true);
+        setError(null);
         
-        setStats({
-          totalClients: 24,
-          completedQuestionnaires: 18,
-          aiProposalsGenerated: 15,
-          documentsCreated: 12,
-          activeUsers: 3,
-          systemUptime: '7 days'
-        });
+        const dashboardData = await apiService.getDashboardStatistics();
+        
+        setStats(dashboardData.statistics);
+        setRecentActivities(dashboardData.recent_activities || []);
+        
       } catch (error) {
         console.error('Failed to fetch dashboard data:', error);
+        setError('Failed to load dashboard data. Please try again.');
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchDashboardData();
-  }, []);
+  }, [isAuthenticated, authLoading]);
+
+  const getActivityColor = (color: string) => {
+    const colorMap = {
+      green: 'bg-green-400',
+      blue: 'bg-blue-400',
+      purple: 'bg-purple-400',
+      orange: 'bg-orange-400',
+      red: 'bg-red-400'
+    };
+    return colorMap[color as keyof typeof colorMap] || 'bg-gray-400';
+  };
+
+  // Show loading while authenticating
+  if (authLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+      </div>
+    );
+  }
+
+  // Don't render if not authenticated (will redirect)
+  if (!isAuthenticated) {
+    return null;
+  }
 
   const StatCard = ({ icon: Icon, title, value, subtitle, color }: {
     icon: any;
@@ -77,6 +128,19 @@ export default function DashboardPage() {
         <p className="text-gray-600">Overview of your HNC Legal Questionnaire System</p>
       </div>
 
+      {/* Error Display */}
+      {error && (
+        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+          <p className="text-red-600">{error}</p>
+          <button 
+            onClick={() => window.location.reload()}
+            className="mt-2 px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700"
+          >
+            Retry
+          </button>
+        </div>
+      )}
+
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         <StatCard
@@ -90,21 +154,21 @@ export default function DashboardPage() {
           icon={FileText}
           title="Questionnaires"
           value={stats.completedQuestionnaires}
-          subtitle="Completed this month"
+          subtitle="Completed submissions"
           color="bg-green-600"
         />
         <StatCard
           icon={Brain}
           title="AI Proposals"
           value={stats.aiProposalsGenerated}
-          subtitle="Generated this month"
+          subtitle="Generated proposals"
           color="bg-purple-600"
         />
         <StatCard
           icon={TrendingUp}
           title="Documents"
           value={stats.documentsCreated}
-          subtitle="Created this month"
+          subtitle="Created documents"
           color="bg-orange-600"
         />
         <StatCard
@@ -129,36 +193,29 @@ export default function DashboardPage() {
           <h2 className="text-lg font-medium text-gray-900">Recent Activity</h2>
         </div>
         <div className="p-6">
-          <div className="space-y-4">
-            <div className="flex items-center space-x-3">
-              <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-              <span className="text-sm text-gray-600">
-                New questionnaire completed by John Doe
-              </span>
-              <span className="text-xs text-gray-400">2 hours ago</span>
+          {isLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-600 mr-2"></div>
+              <span className="text-gray-600">Loading activities...</span>
             </div>
-            <div className="flex items-center space-x-3">
-              <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
-              <span className="text-sm text-gray-600">
-                AI proposal generated for estate planning
-              </span>
-              <span className="text-xs text-gray-400">4 hours ago</span>
+          ) : recentActivities.length > 0 ? (
+            <div className="space-y-4">
+              {recentActivities.map((activity, index) => (
+                <div key={index} className="flex items-center space-x-3">
+                  <div className={`w-2 h-2 rounded-full ${getActivityColor(activity.color)}`}></div>
+                  <span className="text-sm text-gray-600 flex-1">
+                    {activity.description}
+                  </span>
+                  <span className="text-xs text-gray-400">{activity.time_ago}</span>
+                </div>
+              ))}
             </div>
-            <div className="flex items-center space-x-3">
-              <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
-              <span className="text-sm text-gray-600">
-                Will document created for client_58a83757
-              </span>
-              <span className="text-xs text-gray-400">6 hours ago</span>
+          ) : (
+            <div className="text-center py-8 text-gray-500">
+              <p>No recent activity</p>
+              <p className="text-sm mt-1">Activity will appear here as users interact with the system</p>
             </div>
-            <div className="flex items-center space-x-3">
-              <div className="w-2 h-2 bg-orange-400 rounded-full"></div>
-              <span className="text-sm text-gray-600">
-                System backup completed successfully
-              </span>
-              <span className="text-xs text-gray-400">1 day ago</span>
-            </div>
-          </div>
+          )}
         </div>
       </div>
     </div>
