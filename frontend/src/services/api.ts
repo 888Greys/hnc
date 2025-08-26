@@ -317,14 +317,27 @@ class ApiService {
       activeUsers: number;
       systemUptime: string;
       recentClients: number;
+      // Enhanced legal statistics
+      highValueCases?: number;
+      inheritanceTaxCases?: number;
+      willCreationCases?: number;
+      trustCreationCases?: number;
+      pendingValuations?: number;
+      complianceAlerts?: number;
     };
     recent_activities: Array<{
       type: string;
       description: string;
       time_ago: string;
       color: string;
+      metadata?: any;
     }>;
     clients_by_objective: Record<string, number>;
+    legal_insights?: {
+      average_case_value: number;
+      most_common_objective: string;
+      system_health: any;
+    };
   }> {
     try {
       if (!this.api) {
@@ -336,6 +349,46 @@ class ApiService {
     } catch (error) {
       console.error('Failed to get dashboard statistics:', error);
       throw new Error('Failed to get dashboard statistics. Please try again.');
+    }
+  }
+
+  // Enhanced legal activities endpoint
+  async getLegalActivities(): Promise<{
+    activities: Array<{
+      id: string;
+      type: string;
+      title: string;
+      description: string;
+      timestamp: string;
+      legal_context: any;
+      priority: string;
+    }>;
+    total_count: number;
+    legal_insights: any;
+  }> {
+    try {
+      const response = await this.api.get('/realtime/legal-activities');
+      return response.data;
+    } catch (error) {
+      console.error('Failed to get legal activities:', error);
+      throw new Error('Failed to get legal activities. Please try again.');
+    }
+  }
+
+  // Trigger legal milestone notification
+  async triggerLegalMilestone(clientId: string, milestone: string): Promise<{
+    message: string;
+    client_id: string;
+    milestone: string;
+  }> {
+    try {
+      const response = await this.api.post('/realtime/notify-legal-milestone', null, {
+        params: { client_id: clientId, milestone }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Failed to trigger legal milestone:', error);
+      throw new Error('Failed to trigger legal milestone notification.');
     }
   }
 

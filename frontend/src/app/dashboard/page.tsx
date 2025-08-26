@@ -14,6 +14,13 @@ interface DashboardStats {
   activeUsers: number;
   systemUptime: string;
   recentClients: number;
+  // Enhanced legal statistics
+  highValueCases?: number;
+  inheritanceTaxCases?: number;
+  willCreationCases?: number;
+  trustCreationCases?: number;
+  pendingValuations?: number;
+  complianceAlerts?: number;
 }
 
 interface RecentActivity {
@@ -185,6 +192,35 @@ export default function DashboardPage() {
           subtitle="Continuous operation"
           color="bg-emerald-600"
         />
+        
+        {/* Enhanced Legal Statistics */}
+        {stats.highValueCases !== undefined && (
+          <StatCard
+            icon={TrendingUp}
+            title="High-Value Cases"
+            value={stats.highValueCases}
+            subtitle="Assets >10M KES"
+            color="bg-red-600"
+          />
+        )}
+        {stats.inheritanceTaxCases !== undefined && (
+          <StatCard
+            icon={FileText}
+            title="Tax Liable Cases"
+            value={stats.inheritanceTaxCases}
+            subtitle="Assets >5M KES"
+            color="bg-yellow-600"
+          />
+        )}
+        {stats.willCreationCases !== undefined && (
+          <StatCard
+            icon={FileText}
+            title="Will Requests"
+            value={stats.willCreationCases}
+            subtitle="Active will cases"
+            color="bg-cyan-600"
+          />
+        )}
       </div>
 
       {/* Recent Activity */}
