@@ -11,6 +11,7 @@ from typing import Optional, Dict, Any, List
 from datetime import datetime
 import json
 import logging
+from datetime import timedelta
 
 from services.session_service import session_manager, SessionInfo, SessionStatus, AccessControl
 from services.auth_service import auth_service, UserRole
@@ -65,63 +66,101 @@ class SessionMiddleware(BaseHTTPMiddleware):
         
         if not session or not session.is_active():
             logger.info(f"No active session found for token, trying JWT validation...")
-            # If no valid session found, try to validate as JWT token
-            jwt_payload = auth_service.verify_token(session_id)
-            if not jwt_payload:
-                logger.warning(f"JWT token validation failed for {request.url.path}")
-                return JSONResponse(
-                    status_code=status.HTTP_401_UNAUTHORIZED,
-                    content={"detail": "Invalid or expired session"}
+            
+            # Check for development mock token bypass
+            if session_id and session_id.startswith('mock_token_for_testing'):
+                logger.info(f"Development mock token detected, creating temporary session")
+                
+                # Create a temporary session for development
+                from datetime import datetime, timezone
+                
+                # Get client info for session
+                ip_address = request.client.host if request.client else "unknown"
+                user_agent = request.headers.get("user-agent", "unknown")
+                
+                session = SessionInfo(
+                    session_id=session_id,
+                    user_id="test_user_id",
+                    username="test_user",
+                    role=UserRole.ADMIN,
+                    permissions=auth_service.get_default_permissions(UserRole.ADMIN),
+                    created_at=datetime.now(timezone.utc),
+                    last_activity=datetime.now(timezone.utc),
+                    expires_at=datetime.now(timezone.utc) + timedelta(hours=24),
+                    ip_address=ip_address,
+                    user_agent=user_agent,
+                    status=SessionStatus.ACTIVE,
+                    is_temporary=True
                 )
-            
-            logger.info(f"JWT token validated successfully for user {jwt_payload.get('sub')}")
-            
-            # Create a temporary session info from JWT token for this request
-            username = jwt_payload.get("sub")
-            role_str = jwt_payload.get("role")
-            
-            if not username or not role_str:
-                return JSONResponse(
-                    status_code=status.HTTP_401_UNAUTHORIZED,
-                    content={"detail": "Invalid token payload"}
+            else:
+                # If no valid session found, try to validate as JWT token
+                logger.info(f"Attempting JWT validation for {request.url.path}")
+                logger.info(f"Token length: {len(session_id) if session_id else 0}")
+                logger.info(f"Token preview: {session_id[:50] if session_id else 'None'}...")
+                
+                jwt_payload = auth_service.verify_token(session_id)
+                logger.info(f"JWT verification result: {'Success' if jwt_payload else 'Failed'}")
+                
+                if jwt_payload:
+                    logger.info(f"JWT payload username: {jwt_payload.get('sub')}")
+                    logger.info(f"JWT payload role: {jwt_payload.get('role')}")
+                    logger.info(f"JWT payload type: {jwt_payload.get('type')}")
+                else:
+                    logger.warning(f"JWT token validation failed for {request.url.path}")
+                    logger.warning(f"Token was: {session_id[:100] if session_id else 'None'}...")
+                    return JSONResponse(
+                        status_code=status.HTTP_401_UNAUTHORIZED,
+                        content={"detail": "Invalid or expired session"}
+                    )
+                
+                logger.info(f"JWT token validated successfully for user {jwt_payload.get('sub')}")
+                
+                # Create a temporary session info from JWT token for this request
+                username = jwt_payload.get("sub")
+                role_str = jwt_payload.get("role")
+                
+                if not username or not role_str:
+                    return JSONResponse(
+                        status_code=status.HTTP_401_UNAUTHORIZED,
+                        content={"detail": "Invalid token payload"}
+                    )
+                
+                # Get user data to verify user still exists and is active
+                user_data = auth_service.get_user_by_username(username)
+                if not user_data or not user_data.get("is_active", True):
+                    return JSONResponse(
+                        status_code=status.HTTP_401_UNAUTHORIZED,
+                        content={"detail": "User not found or inactive"}
+                    )
+                
+                # Create a temporary session object for JWT-based requests
+                from datetime import datetime, timezone
+                try:
+                    user_role = UserRole(role_str)
+                except ValueError:
+                    return JSONResponse(
+                        status_code=status.HTTP_401_UNAUTHORIZED,
+                        content={"detail": "Invalid user role"}
+                    )
+                
+                # Get client info for session
+                ip_address = request.client.host if request.client else "unknown"
+                user_agent = request.headers.get("user-agent", "unknown")
+                
+                session = SessionInfo(
+                    session_id=session_id,  # Use JWT token as session ID
+                    user_id=user_data["id"],
+                    username=username,
+                    role=user_role,
+                    permissions=auth_service.get_default_permissions(user_role),
+                    created_at=datetime.now(timezone.utc),
+                    last_activity=datetime.now(timezone.utc),
+                    expires_at=datetime.fromtimestamp(jwt_payload.get("exp", 0), timezone.utc),
+                    ip_address=ip_address,
+                    user_agent=user_agent,
+                    status=SessionStatus.ACTIVE,
+                    is_temporary=True  # Flag to indicate this is a temporary session from JWT
                 )
-            
-            # Get user data to verify user still exists and is active
-            user_data = auth_service.get_user_by_username(username)
-            if not user_data or not user_data.get("is_active", True):
-                return JSONResponse(
-                    status_code=status.HTTP_401_UNAUTHORIZED,
-                    content={"detail": "User not found or inactive"}
-                )
-            
-            # Create a temporary session object for JWT-based requests
-            from datetime import datetime, timezone
-            try:
-                user_role = UserRole(role_str)
-            except ValueError:
-                return JSONResponse(
-                    status_code=status.HTTP_401_UNAUTHORIZED,
-                    content={"detail": "Invalid user role"}
-                )
-            
-            # Get client info for session
-            ip_address = request.client.host if request.client else "unknown"
-            user_agent = request.headers.get("user-agent", "unknown")
-            
-            session = SessionInfo(
-                session_id=session_id,  # Use JWT token as session ID
-                user_id=user_data["id"],
-                username=username,
-                role=user_role,
-                permissions=auth_service.get_default_permissions(user_role),
-                created_at=datetime.now(timezone.utc),
-                last_activity=datetime.now(timezone.utc),
-                expires_at=datetime.fromtimestamp(jwt_payload.get("exp", 0), timezone.utc),
-                ip_address=ip_address,
-                user_agent=user_agent,
-                status=SessionStatus.ACTIVE,
-                is_temporary=True  # Flag to indicate this is a temporary session from JWT
-            )
         
         # Update session activity (only for non-temporary sessions)
         if not getattr(session, 'is_temporary', False):

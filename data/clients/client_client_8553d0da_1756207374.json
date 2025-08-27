@@ -1,0 +1,34 @@
+{
+  "bioData": {
+    "fullName": "kiprono santos",
+    "maritalStatus": "Married",
+    "spouseName": "dee das",
+    "spouseId": "202020200",
+    "children": "santos junior"
+  },
+  "financialData": {
+    "assets": [
+      {
+        "type": "Real Estate",
+        "description": "So wealthy",
+        "value": 100000000.0
+      }
+    ],
+    "liabilities": "Mortgages",
+    "incomeSources": "Salary"
+  },
+  "economicContext": {
+    "economicStanding": "High Net Worth",
+    "distributionPrefs": "Equal Distribution"
+  },
+  "objectives": {
+    "objective": "Create Living Will",
+    "details": "I want a living will"
+  },
+  "lawyerNotes": "",
+  "savedAt": "2025-08-26T11:22:54.604361",
+  "submittedBy": "admin",
+  "submissionType": "questionnaire",
+  "clientId": "client_8553d0da",
+  "lastUpdated": "2025-08-26T11:22:54.604365"
+}

@@ -14,7 +14,8 @@ import {
   Menu,
   X,
   User,
-  Shield
+  Shield,
+  MessageCircle
 } from 'lucide-react';
 
 interface NavigationProps {
@@ -45,6 +46,12 @@ const navItems = [
     href: '/questionnaire', 
     icon: FileText,
     description: 'Digital client intake'
+  },
+  { 
+    name: 'AI Chat', 
+    href: '/chat', 
+    icon: MessageCircle,
+    description: 'Chat with AI assistant'
   },
   { 
     name: 'AI Proposals', 

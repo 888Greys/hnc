@@ -76,6 +76,10 @@ const retryRequest = async <T>(
 class ApiService {
   private api: AxiosInstance;
   private token: string | null = null;
+  
+  // Add method declarations
+  getAuthDebugInfo(): any;
+  sendChatMessage(message: string, context?: string): Promise<any>;
 
   constructor() {
     // Initialize axios instance with proper error handling
@@ -95,18 +99,32 @@ class ApiService {
     // Add request interceptor to include auth token
     this.api.interceptors.request.use(
       (config) => {
-        // Get token from localStorage since AuthContext manages it there
+        // Get token from localStorage - check both possible storage keys
+        let authToken = null;
+        
+        // Try auth_tokens first (primary storage)
         const authTokensStr = localStorage.getItem('auth_tokens');
         if (authTokensStr) {
           try {
             const authTokens = JSON.parse(authTokensStr);
-            if (authTokens.access_token) {
-              config.headers.Authorization = `Bearer ${authTokens.access_token}`;
-            }
+            authToken = authTokens.access_token;
           } catch (error) {
-            console.error('Failed to parse auth tokens:', error);
+            console.warn('Failed to parse auth_tokens:', error);
           }
         }
+        
+        // Fallback: try to get from token key directly
+        if (!authToken) {
+          authToken = localStorage.getItem('token');
+        }
+        
+        if (authToken) {
+          config.headers.Authorization = `Bearer ${authToken}`;
+          console.debug('API Request with auth token:', config.url);
+        } else {
+          console.warn('No auth token found for request:', config.url);
+        }
+        
         return config;
       },
       (error) => {
@@ -158,17 +176,58 @@ class ApiService {
     );
   }
 
-  // Authentication status check
+  // Authentication status check with debug info
   isAuthenticated(): boolean {
     if (typeof window === 'undefined') return false;
+    
     const authTokensStr = localStorage.getItem('auth_tokens');
-    if (!authTokensStr) return false;
+    const directToken = localStorage.getItem('token');
+    
+    console.debug('Auth check:', {
+      authTokensStr: !!authTokensStr,
+      directToken: !!directToken,
+      localStorage: Object.keys(localStorage)
+    });
+    
+    if (!authTokensStr && !directToken) return false;
+    
     try {
-      const authTokens = JSON.parse(authTokensStr);
-      return !!authTokens.access_token;
+      if (authTokensStr) {
+        const authTokens = JSON.parse(authTokensStr);
+        return !!authTokens.access_token;
+      }
+      return !!directToken;
     } catch {
       return false;
     }
+  }
+  
+  // Debug method to check current auth state
+  getAuthDebugInfo(): any {
+    if (typeof window === 'undefined') return { error: 'Not in browser' };
+    
+    const authTokensStr = localStorage.getItem('auth_tokens');
+    const authUserStr = localStorage.getItem('auth_user');
+    const directToken = localStorage.getItem('token');
+    
+    let parsedTokens = null;
+    let parsedUser = null;
+    
+    try {
+      if (authTokensStr) parsedTokens = JSON.parse(authTokensStr);
+      if (authUserStr) parsedUser = JSON.parse(authUserStr);
+    } catch (e) {
+      // ignore parsing errors
+    }
+    
+    return {
+      hasAuthTokens: !!authTokensStr,
+      hasAuthUser: !!authUserStr,
+      hasDirectToken: !!directToken,
+      tokenCount: parsedTokens ? Object.keys(parsedTokens).length : 0,
+      userInfo: parsedUser ? { username: parsedUser.username, role: parsedUser.role } : null,
+      allLocalStorageKeys: Object.keys(localStorage)
+    };
   }
 
   // Login method for compatibility (delegates to AuthContext)
@@ -221,6 +280,20 @@ class ApiService {
     }
   }
 
+  async getAIProposals(): Promise<{
+    proposals: any[];
+    total: number;
+  }> {
+    try {
+      const response = await this.api.get('/ai/proposals');
+      return response.data;
+    } catch (error) {
+      console.error('Failed to fetch AI proposals:', error);
+      // Return empty array as fallback
+      return { proposals: [], total: 0 };
+    }
+  }
+
   // Asset management methods
   async getAssetsSummary(): Promise<{
     totalValue: number;
@@ -237,6 +310,16 @@ class ApiService {
   }
 
   // Client management methods
+  async getClient(clientId: string): Promise<any> {
+    try {
+      const response = await this.api.get(`/clients/${clientId}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Failed to get client ${clientId}:`, error);
+      throw new Error('Failed to get client data');
+    }
+  }
+
   async getClients(page: number = 1, limit: number = 50, search?: string): Promise<{
     clients: any[];
     total: number;
@@ -389,6 +472,29 @@ class ApiService {
     } catch (error) {
       console.error('Failed to trigger legal milestone:', error);
       throw new Error('Failed to trigger legal milestone notification.');
+    }
+  }
+
+  // AI Chat method
+  async sendChatMessage(message: string, context: string = 'general'): Promise<{
+    response: string;
+    isRealAI: boolean;
+    debugInfo?: any;
+  }> {
+    try {
+      console.debug('Sending chat message:', { message, context });
+      console.debug('Auth debug info:', this.getAuthDebugInfo());
+      
+      const response = await this.api.post('/ai/chat', {
+        message,
+        context
+      });
+      
+      console.debug('Chat response received:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('Chat API error:', error);
+      throw error;
     }
   }
 

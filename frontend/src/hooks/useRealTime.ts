@@ -146,7 +146,7 @@ export const useRealTime = ({
                   addToast({ 
                     type: 'success', 
                     title: `New Client: ${clientData.client_name}`,
-                    description: `${clientData.objective} case${clientData.total_asset_value ? ` - KES ${clientData.total_asset_value.toLocaleString()}` : ''}`,
+                    message: `${clientData.objective} case${clientData.total_asset_value ? ` - KES ${clientData.total_asset_value.toLocaleString()}` : ''}`,
                     duration: 6000
                   });
                   break;

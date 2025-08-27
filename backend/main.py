@@ -10,6 +10,11 @@ import json
 import logging
 import io
 import asyncio
+
+# Load environment variables from .env file
+from dotenv import load_dotenv
+load_dotenv()
+
 try:
     from cerebras.cloud.sdk import Cerebras
 except ImportError:
@@ -59,6 +64,7 @@ app.add_middleware(
         "/health",
         "/auth/login",
         "/auth/register",
+        "/ai/chat",  # Chat endpoint has its own authentication
         "/favicon.ico"
     ]
 )
@@ -450,7 +456,7 @@ async def generate_cerebras_ai_response(prompt: str) -> AIProposalResponse:
         client = Cerebras(api_key=api_key)
         
         response = client.chat.completions.create(
-            model="llama3.1-70b",  # Use Cerebras's Llama model
+            model="gpt-oss-120b",  # Use Cerebras's GPT-OSS model
             messages=[
                 {
                     "role": "system",
@@ -1334,16 +1340,21 @@ async def generate_ai_proposal(
         # Check if Cerebras API is available and configured
         api_key = os.getenv("CEREBRAS_API_KEY")
         
+        # Add detailed debugging
+        logger.info(f"API Key check - Present: {bool(api_key)}, Length: {len(api_key) if api_key else 0}")
+        logger.info(f"Cerebras SDK check - Available: {Cerebras is not None}")
+        
         if api_key and Cerebras:
             logger.info("Generating AI proposal using Cerebras API")
             try:
                 response = await generate_cerebras_ai_response(prompt)
+                logger.info("Successfully generated real AI proposal")
             except Exception as e:
                 logger.error(f"Cerebras API call failed: {e}")
                 logger.info("Falling back to enhanced mock response")
                 response = generate_enhanced_mock_ai_response()
         else:
-            logger.info("Cerebras API not configured, using enhanced mock response")
+            logger.info(f"Cerebras API not configured - API Key: {bool(api_key)}, SDK: {Cerebras is not None}, using enhanced mock response")
             response = generate_enhanced_mock_ai_response()
         
         # Save the proposal if client_id is provided
@@ -2656,6 +2667,158 @@ async def enhanced_save_client_data(data: dict, client_id: str = None, submitted
     except Exception as e:
         logger.error(f"Error in enhanced_save_client_data: {e}")
         return False, ""
+
+# Chat Models
+class ChatRequest(BaseModel):
+    message: str = Field(..., min_length=1, description="User message")
+    context: str = Field(default="general", description="Chat context")
+
+class ChatResponse(BaseModel):
+    response: str
+    isRealAI: bool
+    debugInfo: Optional[Dict[str, Any]] = None
+
+@app.post("/ai/chat", response_model=ChatResponse)
+async def chat_with_ai(
+    request: ChatRequest,
+    current_user: dict = Depends(get_current_user)
+):
+    """Direct chat with AI assistant for testing and debugging"""
+    try:
+        # Check AI configuration
+        api_key = os.getenv("CEREBRAS_API_KEY")
+        cerebras_available = Cerebras is not None
+        
+        debug_info = {
+            "apiKeyAvailable": bool(api_key),
+            "apiKeyLength": len(api_key) if api_key else 0,
+            "cerebrasAvailable": cerebras_available,
+            "model": "gpt-oss-120b" if api_key and cerebras_available else "mock"
+        }
+        
+        logger.info(f"Chat request debug - API Key: {'Available' if api_key else 'Missing'}, Cerebras: {'Available' if cerebras_available else 'Missing'}")
+        
+        if api_key and cerebras_available:
+            # Use real AI
+            try:
+                client = Cerebras(api_key=api_key)
+                
+                response = client.chat.completions.create(
+                    model="gpt-oss-120b",
+                    messages=[
+                        {
+                            "role": "user",  # Simplified - GPT-OSS works better with simple user messages
+                            "content": f"You are a legal AI assistant specializing in Kenyan law. Please provide helpful information about: {request.message}"
+                        }
+                    ],
+                    max_tokens=1000,
+                    temperature=0.7
+                )
+                
+                ai_content = response.choices[0].message.content
+                logger.info("Successfully generated real AI response")
+                
+                return ChatResponse(
+                    response=ai_content,
+                    isRealAI=True,
+                    debugInfo=debug_info
+                )
+                
+            except Exception as e:
+                logger.error(f"Cerebras API call failed in chat: {e}")
+                debug_info["error"] = str(e)
+                
+                # Fallback to mock
+                mock_response = generate_mock_chat_response(request.message)
+                return ChatResponse(
+                    response=f"I apologize, but I'm currently experiencing technical difficulties with my AI system. Here's a fallback response:\n\n{mock_response}",
+                    isRealAI=False,
+                    debugInfo=debug_info
+                )
+        else:
+            # Use mock AI
+            logger.info("Using mock AI for chat response")
+            mock_response = generate_mock_chat_response(request.message)
+            
+            return ChatResponse(
+                response=mock_response,
+                isRealAI=False,
+                debugInfo=debug_info
+            )
+            
+    except Exception as e:
+        logger.exception("Error in chat endpoint")
+        raise HTTPException(status_code=500, detail="Failed to process chat message")
+
+def generate_mock_chat_response(message: str) -> str:
+    """Generate a mock response for chat testing"""
+    message_lower = message.lower()
+    
+    if any(word in message_lower for word in ['will', 'testament']):
+        return """Based on Kenyan law, creating a will requires specific formalities under the Succession Act (Cap 160). The will must be:
+
+1. In writing
+2. Signed by the testator
+3. Witnessed by two independent witnesses
+4. The testator must be of sound mind and at least 18 years old
+
+I recommend consulting with a qualified lawyer to ensure your will meets all legal requirements. Would you like to know more about any specific aspect of will creation?"""
+    
+    elif any(word in message_lower for word in ['trust', 'trustee']):
+        return """Trusts in Kenya are governed by the Trustee Act (Cap 167). A trust involves:
+
+1. **Settlor**: The person creating the trust
+2. **Trustee**: The person managing the trust property
+3. **Beneficiary**: The person who benefits from the trust
+
+Trusts can be useful for asset protection, tax planning, and succession planning. The specific type of trust (discretionary, fixed, charitable, etc.) depends on your objectives.
+
+What specific aspect of trusts would you like to learn more about?"""
+    
+    elif any(word in message_lower for word in ['succession', 'inheritance']):
+        return """Succession in Kenya is governed by multiple laws depending on the circumstances:
+
+1. **The Succession Act (Cap 160)**: For general succession matters
+2. **Islamic law**: For Muslims
+3. **Hindu law**: For Hindus
+4. **Customary law**: For those under customary law systems
+
+Key factors include:
+- Whether there's a valid will
+- The deceased's religion and personal law
+- The nature and location of assets
+- Family relationships and dependents
+
+Would you like specific information about any of these succession systems?"""
+    
+    elif any(word in message_lower for word in ['property', 'land', 'real estate']):
+        return """Property law in Kenya involves several key areas:
+
+1. **Land tenure**: Freehold, leasehold, or customary rights
+2. **Registration**: Under the Land Registration Act, 2012
+3. **Transfer**: Proper documentation and registration required
+4. **Succession**: Different rules for different types of land
+
+For property transfers or inheritance, ensure:
+- Proper title verification
+- Compliance with land laws
+- Payment of applicable taxes and fees
+- Registration with relevant authorities
+
+What specific property matter can I help you with?"""
+    
+    else:
+        return """Hello! I'm here to help with legal questions about Kenyan law, particularly in areas such as:
+
+• **Estate Planning**: Wills, trusts, and succession planning
+• **Property Law**: Land transfers, inheritance, and ownership
+• **Family Law**: Marriage, divorce, and custody matters
+• **Business Law**: Company formation and commercial transactions
+• **Tax Law**: Inheritance tax and property taxation
+
+Please note that this information is for educational purposes only and not formal legal advice. For specific legal matters, always consult with a qualified Kenyan lawyer.
+
+What legal topic would you like to learn more about?"""
 
 # Main execution
 if __name__ == "__main__":

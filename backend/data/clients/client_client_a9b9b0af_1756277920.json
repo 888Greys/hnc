@@ -1,0 +1,34 @@
+{
+  "bioData": {
+    "fullName": "mathew",
+    "maritalStatus": "Single",
+    "spouseName": "",
+    "spouseId": "",
+    "children": "vfd"
+  },
+  "financialData": {
+    "assets": [
+      {
+        "type": "Real Estate",
+        "description": "fbdf",
+        "value": 5555555.0
+      }
+    ],
+    "liabilities": "rgrg",
+    "incomeSources": "gbbfw"
+  },
+  "economicContext": {
+    "economicStanding": "High Net Worth",
+    "distributionPrefs": "Merit-based"
+  },
+  "objectives": {
+    "objective": "Create Will",
+    "details": "fbfb"
+  },
+  "lawyerNotes": "",
+  "savedAt": "2025-08-27T09:58:40.529048",
+  "submittedBy": "admin",
+  "submissionType": "questionnaire",
+  "clientId": "client_a9b9b0af",
+  "lastUpdated": "2025-08-27T09:58:40.529053"
+}
